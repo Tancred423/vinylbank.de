@@ -1,12 +1,13 @@
-require('dotenv').config({ path: '/var/www/vinylbank.de/.env' }); // Linux 
-// require('dotenv').config({ path: 'D:/OneDrive/Documents/Programming/vinylbank.de/.env' }); // Windows
+require('dotenv').config({ path: devMode ? 'D:/OneDrive/Documents/Programming/vinylbank.de/.env' : '/var/www/vinylbank.de/.env' });
 const router = require('express').Router();
 const mysql = require('../database/mysql');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+////////////////////////////////////////////
 // Mail
-const nodemailer = require("nodemailer");
+////////////////////////////////////////////
+const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     auth: {
@@ -15,7 +16,9 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+////////////////////////////////////////////
 // Global functions
+////////////////////////////////////////////
 const functions = require('../public/js/functions');
 const isLoggedIn = functions.isLoggedIn;
 const nws = functions.nws;
@@ -65,22 +68,24 @@ module.exports = function () {
     ////////////////////////////////////////////
     async function login(req, res) {
         const { email, password } = req.body;
-        let rememberMe = req.body.rememberMe === 'true';
+        const rememberMe = req.body.rememberMe === 'true';
 
         // Check if email is already registered
-        let sql = nws`SELECT id, password, verified_email
+        const sql = nws`
+            SELECT id, password, verified_email
             FROM users
-            WHERE email=${mysql.escape(email)}`;
+            WHERE email=${mysql.escape(email)}
+            `;
 
         let users = await mysql.query(sql);
         users = users[0];
 
-        if (!users[0].verified_email) {
+        if (users.length > 0 && !users[0].verified_email) {
             // Email not verified
             res.sendStatus(403);
         } else if (users.length > 0 && await bcrypt.compare(password, users[0].password)) {
             // Login successful
-            let userId = users[0].id;
+            const userId = users[0].id;
 
             const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
                 expiresIn: rememberMe ? '10000d' : '1d'
@@ -105,9 +110,11 @@ module.exports = function () {
             const { username, email, password } = req.body;
 
             // Check if email is already registered
-            let sql = nws`SELECT id
+            let sql = nws`
+                SELECT id
                 FROM users
-                WHERE email=${mysql.escape(email)}`;
+                WHERE email=${mysql.escape(email)}
+                `;
 
             let users = await mysql.query(sql);
             users = users[0];
@@ -118,13 +125,15 @@ module.exports = function () {
             } else {
                 const hashedPassword = await bcrypt.hash(password, 8);
 
-                sql = nws`INSERT INTO users(username,email,password,verified_email)
-                    VALUES(${mysql.escape(username)},${mysql.escape(email)},${mysql.escape(hashedPassword)},${false})`;
+                sql = nws`
+                    INSERT INTO users(username,email,password,verified_email)
+                    VALUES(${mysql.escape(username)},${mysql.escape(email)},${mysql.escape(hashedPassword)},${false})
+                    `;
 
                 let result = await mysql.query(sql);
                 result = result[0];
 
-                let userId = result.insertId;
+                const userId = result.insertId;
 
                 // async email
                 jwt.sign(
@@ -141,7 +150,7 @@ module.exports = function () {
                         transporter.sendMail({
                             to: email,
                             subject: 'Bestätigen Sie Ihre E-Mail Adresse',
-                            html: `
+                            html: nws`
                                 Guten Tag,<br/>
                                 <br/>
                                 Bitte bestätigen Sie Ihre E-Mail Adresse indem Sie <a href="${url}">hier klicken</a>.<br/>
@@ -167,9 +176,11 @@ module.exports = function () {
             const { email } = req.body;
 
             // Check if email is already registered
-            let sql = nws`SELECT *
+            const sql = nws`
+                SELECT *
                 FROM users
-                WHERE email=${mysql.escape(email)}`;
+                WHERE email=${mysql.escape(email)}
+                `;
 
             let users = await mysql.query(sql);
             users = users[0];
@@ -193,7 +204,7 @@ module.exports = function () {
                         transporter.sendMail({
                             to: email,
                             subject: 'Bestätigen Sie Ihre E-Mail Adresse',
-                            html: `
+                            html: nws`
                                 Guten Tag,<br/>
                                 <br/>
                                 Bitte bestätigen Sie Ihre E-Mail Adresse indem Sie <a href="${url}">hier klicken</a>.<br/>
@@ -220,7 +231,7 @@ module.exports = function () {
         const { email } = req.body;
 
         // Check if email is already registered
-        let sql = nws`
+        const sql = nws`
             SELECT id
             FROM users
             WHERE email=${mysql.escape(email)}
@@ -248,7 +259,7 @@ module.exports = function () {
                     transporter.sendMail({
                         to: email,
                         subject: 'Passwort zurücksetzen',
-                        html: `
+                        html: nws`
                             Guten Tag,<br/>
                             <br/>
                             es wurde angefordert Ihr Passwort zurückzusetzen.<br/>
@@ -279,7 +290,7 @@ module.exports = function () {
             const user = jwt.verify(req.params.token, process.env.EMAIL_SECRET);
 
             if (user.user) {
-                let sql = nws`
+                const sql = nws`
                     UPDATE users
                     SET verified_email=${true}
                     WHERE id=${mysql.escape(user.user)}
@@ -320,7 +331,7 @@ module.exports = function () {
                 const hashedPassword = await bcrypt.hash(password, 8);
                 const userId = user.user;
 
-                let sql = nws`
+                const sql = nws`
                     UPDATE users
                     SET password=${mysql.escape(hashedPassword)}
                     WHERE id=${mysql.escape(userId)}

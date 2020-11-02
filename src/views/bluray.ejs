@@ -26,25 +26,25 @@
             </label>
         </div>
 
-        <% if (orderBy === 'title' && direction === 'asc') { %>
+        <% if (orderby === 'title' && direction === 'asc') { %>
         <a href="/bluray?orderby=title&direction=desc" class="column-1">Titel <i class="fas fa-sort-alpha-down"></i></a>
-        <% } else if (orderBy == 'title' && direction == 'desc') { %>
+        <% } else if (orderby == 'title' && direction == 'desc') { %>
         <a href="/bluray?orderby=title&direction=asc" class="column-1">Titel <i class="fas fa-sort-alpha-up"></i></a>
         <% } else { %>
         <a href="/bluray?orderby=title&direction=asc" class="column-1">Titel</a>
         <% } %>
 
-        <% if (orderBy === 'genre' && direction === 'asc') { %>
+        <% if (orderby === 'genre' && direction === 'asc') { %>
         <a href="/bluray?orderby=genre&direction=desc" class="column-2">Genre <i class="fas fa-sort-alpha-down"></i></a>
-        <% } else if (orderBy == 'genre' && direction == 'desc') { %>
+        <% } else if (orderby == 'genre' && direction == 'desc') { %>
         <a href="/bluray?orderby=genre&direction=asc" class="column-2">Genre <i class="fas fa-sort-alpha-up"></i></a>
         <% } else { %>
         <a href="/bluray?orderby=genre&direction=asc" class="column-2">Genre</a>
         <% } %>
 
-        <% if (orderBy === 'length' && direction === 'asc') { %>
+        <% if (orderby === 'length' && direction === 'asc') { %>
         <a href="/bluray?orderby=length&direction=desc" class="column-3">Länge <i class="fas fa-sort-numeric-down"></i></a>
-        <% } else if (orderBy == 'length' && direction == 'desc') { %>
+        <% } else if (orderby == 'length' && direction == 'desc') { %>
         <a href="/bluray?orderby=length&direction=asc" class="column-3">Länge <i class="fas fa-sort-numeric-up"></i></a>
         <% } else { %>
         <a href="/bluray?orderby=length&direction=asc" class="column-3">Länge</a>

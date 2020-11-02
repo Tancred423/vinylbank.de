@@ -31,42 +31,37 @@ $('.checkbox-row').change(function () {
 
 // Nav highlights
 $(document).ready(function () {
-    let parts = window.location.pathname.split('/');
-    let lastSegment = parts.pop() || parts.pop();
+    const parts = window.location.pathname.split('/');
+    const lastSegment = parts.pop() || parts.pop();
 
     switch (lastSegment) {
         case 'all':
             $('#btn-all').addClass('nav-highlight');
-            // document.getElementById('search').placeholder = 'Suche BluRay, DVD, CD oder Vinyl...';
             break;
 
         case 'bluray':
             $('#btn-bluray').addClass('nav-highlight');
-            // document.getElementById('search').placeholder = 'Suche BluRay...';
             break;
 
-        case "dvd":
+        case 'dvd':
             $('#btn-dvd').addClass('nav-highlight')
-            // document.getElementById('search').placeholder = 'Suche DVD...';
             break;
 
-        case "cd":
+        case 'cd':
             $('#btn-cd').addClass('nav-highlight')
-            // document.getElementById('search').placeholder = 'Suche CD...';
             break;
 
-        case "vinyl":
+        case 'vinyl':
             $('#btn-vinyl').addClass('nav-highlight')
-            // document.getElementById('search').placeholder = 'Suche Vinyl...';
             break;
     }
 });
 
 // Row sub content
 $('.data-table-row').on('click', function () {
-    let id = $(this).attr('id');
+    const id = $(this).attr('id');
 
-    let subRow = $('#sub_' + id);
+    const subRow = $(`#sub_${id}`);
 
     if (subRow.hasClass('hide')) {
         $('.data-table-sub-row').each(function (i) {
@@ -77,9 +72,9 @@ $('.data-table-row').on('click', function () {
 });
 
 $('.data-table-row-bluray').on('click', function () {
-    let id = $(this).attr('id');
+    const id = $(this).attr('id');
 
-    let subRow = $('#bluray_sub_' + id);
+    const subRow = $(`#bluray_sub_${id}`);
 
     if (subRow.hasClass('hide')) {
         $('.data-table-sub-row').each(function (i) {
@@ -90,9 +85,9 @@ $('.data-table-row-bluray').on('click', function () {
 });
 
 $('.data-table-row-dvd').on('click', function () {
-    let id = $(this).attr('id');
+    const id = $(this).attr('id');
 
-    let subRow = $('#dvd_sub_' + id);
+    const subRow = $(`#dvd_sub_${id}`);
 
     if (subRow.hasClass('hide')) {
         $('.data-table-sub-row').each(function (i) {
@@ -103,9 +98,9 @@ $('.data-table-row-dvd').on('click', function () {
 });
 
 $('.data-table-row-cd').on('click', function () {
-    let id = $(this).attr('id');
+    const id = $(this).attr('id');
 
-    let subRow = $('#cd_sub_' + id);
+    const subRow = $(`#cd_sub_${id}`);
 
     if (subRow.hasClass('hide')) {
         $('.data-table-sub-row').each(function (i) {
@@ -116,8 +111,8 @@ $('.data-table-row-cd').on('click', function () {
 });
 
 $('.data-table-row-vinyl').on('click', function () {
-    let id = $(this).attr('id');
-    let subRow = $('#vinyl_sub_' + id);
+    const id = $(this).attr('id');
+    const subRow = $(`#vinyl_sub_${id}`);
 
     if (subRow.hasClass('hide')) {
         $('.data-table-sub-row').each(function (i) {
@@ -129,34 +124,34 @@ $('.data-table-row-vinyl').on('click', function () {
 
 // Pagination
 $(function ($) {
-    let parts = window.location.pathname.split('/');
-    let lastSegment = parts.pop() || parts.pop();
+    const parts = window.location.pathname.split('/');
+    const lastSegment = parts.pop() || parts.pop();
 
     if (lastSegment !== 'all') {
-        let items = $('.data-table-row');
-        let itemsLength = items.length;
-        let perPage = 15;
+        const items = $('.data-table-row');
+        const itemsLength = items.length;
+        const perPage = 15;
 
         items.slice(perPage).hide();
 
-        $("#pagination").pagination({
+        $('#pagination').pagination({
             items: itemsLength,
             itemsOnPage: perPage,
             displayedPages: 4,
             edges: 1,
             prevText: '<',
             nextText: '>',
-            cssStyle: "light-theme",
+            cssStyle: 'light-theme',
             onInit: function () {
-                let id = window.location.toString().split('#')[1]; // #page-2
+                const id = window.location.toString().split('#')[1]; // #page-2
                 if (id) {
-                    let page = id.split('-')[1]; // 2
-                    $("#pagination").pagination('selectPage', page);
+                    const page = id.split('-')[1]; // 2
+                    $('#pagination').pagination('selectPage', page);
                 }
             },
             onPageClick: function (pageNumber) {
-                let showFrom = perPage * (pageNumber - 1);
-                let showTo = showFrom + perPage;
+                const showFrom = perPage * (pageNumber - 1);
+                const showTo = showFrom + perPage;
                 items.hide().slice(showFrom, showTo).show();
             }
         });
@@ -182,173 +177,175 @@ function closeErrorMessage(el) {
 
 function openLoginModal(passwordToken, tokenExpired) {
     html = `
-    <div class="user-modal" id="login-form">
-        <div class="user-modal-container">
-            <div id="switcher">
-                <div id="switch-login" class="switch-wrapper-1 switch-divider">
-                    <div class="switch">Anmelden</div>
+        <div class="user-modal" id="login-form">
+            <div class="user-modal-container">
+                <div id="switcher">
+                    <div id="switch-login" class="switch-wrapper-1 switch-divider">
+                        <div class="switch">Anmelden</div>
+                    </div>
+                    <div id="switch-signup" class="switch-wrapper-2 switch-not-selected">
+                        <div class="switch">Registrieren</div>
+                    </div>
                 </div>
-                <div id="switch-signup" class="switch-wrapper-2 switch-not-selected">
-                    <div class="switch">Registrieren</div>
+
+                <div id="login">
+                    <form class="form" id="form-login">
+                        <div id="login-messages"></div>
+                        <p class="fieldset">
+                            <label class="image-replace email" for="signin-email">E-mail</label>
+                            <input class="full-width has-padding has-border" id="signin-email" type="email" placeholder="E-Mail">
+                        </p>
+
+                        <p class="fieldset">
+                            <label class="image-replace password" for="signin-password">Password</label>
+                            <input class="full-width has-padding has-border" id="signin-password" type="password" placeholder="Passwort">
+                            <span id="password-show-hide"><span id="pw-show"><i class="fas fa-eye"></i></span><span id="pw-hide" class="hide"><i class="fas fa-eye-slash"></i></span></span>
+                        </p>
+
+                        <p class="fieldset">
+                            <input type="checkbox" id="remember-me">
+                            <label for="remember-me">Eingeloggt bleiben</label>
+                        </p>
+
+                        <p class="fieldset">
+                            <input class="full-width" type="submit" value="Anmelden">
+                        </p>
+                    </form>
+
+                    <p class="form-bottom-message">
+                        <span id="switch-reset-password">
+                            Passwort zurücksetzen
+                        </span>
+                    </p>
                 </div>
-            </div>
 
-            <div id="login">
-                <form class="form" id="form-login">
-                    <div id="login-messages"></div>
-                    <p class="fieldset">
-                        <label class="image-replace email" for="signin-email">E-mail</label>
-                        <input class="full-width has-padding has-border" id="signin-email" type="email" placeholder="E-Mail">
-                    </p>
+                <div id="signup" class="hide">
+                    <form class="form" id="form-signup">
+                        <div id="signup-messages"></div>
+                        <p class="fieldset">
+                            <label class="image-replace username" for="signup-username">Username</label>
+                            <input class="full-width has-padding has-border" id="signup-username" type="text" placeholder="Nutzername">
+                        </p>
 
-                    <p class="fieldset">
-                        <label class="image-replace password" for="signin-password">Password</label>
-                        <input class="full-width has-padding has-border" id="signin-password" type="password" placeholder="Passwort">
-                        <span id="password-show-hide"><span id="pw-show"><i class="fas fa-eye"></i></span><span id="pw-hide" class="hide"><i class="fas fa-eye-slash"></i></span></span>
-                    </p>
+                        <p class="fieldset">
+                            <label class="image-replace email" for="signup-email">E-mail</label>
+                            <input class="full-width has-padding has-border" id="signup-email" type="email" placeholder="E-Mail">
+                        </p>
 
-                    <p class="fieldset">
-                        <input type="checkbox" id="remember-me" checked>
-                        <label for="remember-me">Eingeloggt bleiben</label>
-                    </p>
+                        <p class="fieldset">
+                            <label class="image-replace password" for="signup-password">Password</label>
+                            <input class="full-width has-padding has-border" id="signup-password" type="password" placeholder="Passwort">
+                            <span id="password-show-hide-signup"><span id="pw-show-signup"><i class="fas fa-eye"></i></span><span id="pw-hide-signup" class="hide"><i class="fas fa-eye-slash"></i></span></span>
+                        </p>
 
-                    <p class="fieldset">
-                        <input class="full-width" type="submit" value="Anmelden">
-                    </p>
-                </form>
+                        <p class="fieldset">
+                            <label class="image-replace password" for="signup-password">Password</label>
+                            <input class="full-width has-padding has-border" id="signup-password-repeat" type="password" placeholder="Passwort wiederholen">
+                            <span id="password-show-hide-signup-repeat"><span id="pw-show-signup-repeat"><i class="fas fa-eye"></i></span><span id="pw-hide-signup-repeat" class="hide"><i class="fas fa-eye-slash"></i></span></span>
+                        </p>
 
-                <p class="form-bottom-message">
-                    <span id="switch-reset-password">
-                        Passwort zurücksetzen
-                    </span>
-                </p>
-            </div>
+                        <p class="fieldset">
+                            <input class="full-width has-padding" type="submit" value="Registrieren">
+                        </p>
+                    </form>
+                </div>
 
-            <div id="signup" class="hide">
-                <form class="form" id="form-signup">
-                    <div id="signup-messages"></div>
-                    <p class="fieldset">
-                        <label class="image-replace username" for="signup-username">Username</label>
-                        <input class="full-width has-padding has-border" id="signup-username" type="text" placeholder="Nutzername">
-                    </p>
+                <div id="reset-password" class="hide">
+                    <p class="form-message">Passwort verloren? Bitte geben Sie Ihre E-Mail-Adresse ein.</br> Sie werden einen Link erhalten, mit diesem Sie Ihr Passwort zurücksetzen können.</p>
 
-                    <p class="fieldset">
-                        <label class="image-replace email" for="signup-email">E-mail</label>
-                        <input class="full-width has-padding has-border" id="signup-email" type="email" placeholder="E-Mail">
-                    </p>
+                    <form class="form" id="form-reset-password">
+                        <div id="reset-password-messages"></div>
+                        <p class="fieldset">
+                            <label class="image-replace email" for="reset-email">E-mail</label>
+                            <input class="full-width has-padding has-border" id="reset-email" type="email" placeholder="E-Mail">
+                        </p>
 
-                    <p class="fieldset">
-                        <label class="image-replace password" for="signup-password">Password</label>
-                        <input class="full-width has-padding has-border" id="signup-password" type="password" placeholder="Passwort">
-                        <span id="password-show-hide-signup"><span id="pw-show-signup"><i class="fas fa-eye"></i></span><span id="pw-hide-signup" class="hide"><i class="fas fa-eye-slash"></i></span></span>
-                    </p>
+                        <p class="fieldset">
+                            <input class="full-width has-padding" type="submit" value="Passwort zurücksetzen">
+                        </p>
+                    </form>
 
-                    <p class="fieldset">
-                        <label class="image-replace password" for="signup-password">Password</label>
-                        <input class="full-width has-padding has-border" id="signup-password-repeat" type="password" placeholder="Passwort wiederholen">
-                        <span id="password-show-hide-signup-repeat"><span id="pw-show-signup-repeat"><i class="fas fa-eye"></i></span><span id="pw-hide-signup-repeat" class="hide"><i class="fas fa-eye-slash"></i></span></span>
-                    </p>
+                    <p class="form-bottom-message"><span id="switch-back-to-login">Zurück zur Anmeldung</span></p>
+                </div>
 
-                    <p class="fieldset">
-                        <input class="full-width has-padding" type="submit" value="Registrieren">
-                    </p>
-                </form>
-            </div>
+                <div id="reset-password-token" class="hide">
+                    <p class="form-message">Geben Sir Ihr neues Password ein.</p>
 
-            <div id="reset-password" class="hide">
-                <p class="form-message">Passwort verloren? Bitte geben Sie Ihre E-Mail-Adresse ein.</br> Sie werden einen Link erhalten, mit diesem Sie Ihr Passwort zurücksetzen können.</p>
+                    <form class="form" id="form-reset-password-token">
+                        <div id="reset-token-messages"></div>
+                        <p class="fieldset">
+                            <label class="image-replace password" for="reset-token-password">Password</label>
+                            <input class="full-width has-padding has-border" id="reset-token-password" type="password" placeholder="Passwort">
+                            <span id="password-show-hide-reset-token"><span id="pw-show-reset-token"><i class="fas fa-eye"></i></span><span id="pw-hide-reset-token" class="hide"><i class="fas fa-eye-slash"></i></span></span>
+                        </p>
 
-                <form class="form" id="form-reset-password">
-                    <div id="reset-password-messages"></div>
-                    <p class="fieldset">
-                        <label class="image-replace email" for="reset-email">E-mail</label>
-                        <input class="full-width has-padding has-border" id="reset-email" type="email" placeholder="E-Mail">
-                    </p>
+                        <p class="fieldset">
+                            <label class="image-replace password" for="reset-token-password">Password</label>
+                            <input class="full-width has-padding has-border" id="reset-token-password-repeat" type="password" placeholder="Passwort wiederholen">
+                            <span id="password-show-hide-reset-token-repeat"><span id="pw-show-reset-token-repeat"><i class="fas fa-eye"></i></span><span id="pw-hide-reset-token-repeat" class="hide"><i class="fas fa-eye-slash"></i></span></span>
+                        </p>
 
-                    <p class="fieldset">
-                        <input class="full-width has-padding" type="submit" value="Passwort zurücksetzen">
-                    </p>
-                </form>
-
-                <p class="form-bottom-message"><span id="switch-back-to-login">Zurück zur Anmeldung</span></p>
-            </div>
-
-            <div id="reset-password-token" class="hide">
-                <p class="form-message">Geben Sir Ihr neues Password ein.</p>
-
-                <form class="form" id="form-reset-password-token">
-                    <div id="reset-token-messages"></div>
-                    <p class="fieldset">
-                        <label class="image-replace password" for="reset-token-password">Password</label>
-                        <input class="full-width has-padding has-border" id="reset-token-password" type="password" placeholder="Passwort">
-                        <span id="password-show-hide-reset-token"><span id="pw-show-reset-token"><i class="fas fa-eye"></i></span><span id="pw-hide-reset-token" class="hide"><i class="fas fa-eye-slash"></i></span></span>
-                    </p>
-
-                    <p class="fieldset">
-                        <label class="image-replace password" for="reset-token-password">Password</label>
-                        <input class="full-width has-padding has-border" id="reset-token-password-repeat" type="password" placeholder="Passwort wiederholen">
-                        <span id="password-show-hide-reset-token-repeat"><span id="pw-show-reset-token-repeat"><i class="fas fa-eye"></i></span><span id="pw-hide-reset-token-repeat" class="hide"><i class="fas fa-eye-slash"></i></span></span>
-                    </p>
-
-                    <p class="fieldset">
-                        <input class="full-width has-padding" type="submit" value="Passwort zurücksetzen">
-                    </p>
-                </form>
+                        <p class="fieldset">
+                            <input class="full-width has-padding" type="submit" value="Passwort zurücksetzen">
+                        </p>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-    `
+    `;
 
     $('#modals').append(html);
 
     // Login message -> verified
-    let verified = getParam('verified');
+    const verified = getParam('verified');
     if (verified == 'true') {
         html = `
             <div class="message success-message">
                 <span>E-Mail wurde bestätigt. Bitte einloggen.</span>
                 <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-            </div>`
+            </div>
+        `;
 
         $('#login-messages').append(html);
     }
 
-    let newPassword = getParam('new-password');
+    const newPassword = getParam('new-password');
     if (newPassword == 'true') {
         html = `
             <div class="message success-message">
                 <span>Passwort wurde geändert. Bitte einloggen.</span>
                 <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-            </div>`
+            </div>
+        `;
 
         $('#login-messages').append(html);
     }
 
     // Form
     $(document).ready(function ($) {
-        let formModal = $('#login-form');
+        const formModal = $('#login-form');
 
-        let switchLogin = $('#switch-login');
-        let switchSignup = $('#switch-signup');
-        let switchPassword = $('#switch-reset-password');
-        let switchPasswordBack = $('#switch-back-to-login');
+        const switchLogin = $('#switch-login');
+        const switchSignup = $('#switch-signup');
+        const switchPassword = $('#switch-reset-password');
+        const switchPasswordBack = $('#switch-back-to-login');
 
-        let login = $('#login');
-        let signup = $('#signup');
-        let resetPassword = $('#reset-password');
-        let resetPasswordToken = $('#reset-password-token');
+        const login = $('#login');
+        const signup = $('#signup');
+        const resetPassword = $('#reset-password');
+        const resetPasswordToken = $('#reset-password-token');
 
         let pwField;
-        let pwShow = $('#pw-show');
-        let pwHide = $('#pw-hide');
-        let pwShowSignup = $('#pw-show-signup');
-        let pwHideSignup = $('#pw-hide-signup');
-        let pwShowSignupRepeat = $('#pw-show-signup-repeat');
-        let pwHideSignupRepeat = $('#pw-hide-signup-repeat');
-        let pwShowResetToken = $('#pw-show-reset-token');
-        let pwHideResetToken = $('#pw-hide-reset-token');
-        let pwShowResetTokenRepeat = $('#pw-show-reset-token-repeat');
-        let pwHideResetTokenRepeat = $('#pw-hide-reset-token-repeat');
+        const pwShow = $('#pw-show');
+        const pwHide = $('#pw-hide');
+        const pwShowSignup = $('#pw-show-signup');
+        const pwHideSignup = $('#pw-hide-signup');
+        const pwShowSignupRepeat = $('#pw-show-signup-repeat');
+        const pwHideSignupRepeat = $('#pw-hide-signup-repeat');
+        const pwShowResetToken = $('#pw-show-reset-token');
+        const pwHideResetToken = $('#pw-hide-reset-token');
+        const pwShowResetTokenRepeat = $('#pw-show-reset-token-repeat');
+        const pwHideResetTokenRepeat = $('#pw-hide-reset-token-repeat');
 
         // Password reset token
         if (passwordToken) {
@@ -374,7 +371,8 @@ function openLoginModal(passwordToken, tokenExpired) {
                 <div class="message error-message">
                     <span>Der Link ist abgelaufen. Bitte frage einen neuen an.</span>
                     <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                </div>`
+                </div>
+            `;
 
             $('#reset-password-messages').append(html);
         }
@@ -528,17 +526,17 @@ function openLoginModal(passwordToken, tokenExpired) {
         });
     });
 
-    let formLogin = $('#form-login');
-    let loginMessages = $('#login-messages');
-    let signupMessages = $('#signup-messages');
-    let resetPasswordMessages = $('#reset-password-messages');
+    const formLogin = $('#form-login');
+    const loginMessages = $('#login-messages');
+    const signupMessages = $('#signup-messages');
+    const resetPasswordMessages = $('#reset-password-messages');
 
-    $(formLogin).on("submit", function (e) {
+    $(formLogin).on('submit', function (e) {
         e.preventDefault();
 
-        let loginEmail = $('#signin-email');
-        let loginPassword = $('#signin-password');
-        let loginRememberMe = $('#remember-me');
+        const loginEmail = $('#signin-email');
+        const loginPassword = $('#signin-password');
+        const loginRememberMe = $('#remember-me');
 
         $.ajax({
             global: false,
@@ -563,10 +561,11 @@ function openLoginModal(passwordToken, tokenExpired) {
                         loginMessages.empty();
 
                         html = `
-                        <div class="message error-message">
-                            <span>E-Mail oder Passwort ungültig.</span>
-                            <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                        </div>`
+                            <div class="message error-message">
+                                <span>E-Mail oder Passwort ungültig.</span>
+                                <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                            </div>
+                        `;
 
                         loginMessages.append(html);
                         break;
@@ -580,7 +579,8 @@ function openLoginModal(passwordToken, tokenExpired) {
                                 <span>E-Mail wurde noch nicht bestätigt.<br/>
                                 <a id="resend-mail" class="hyperlink">Bestätigungs-E-Mail erneut senden.</a></span>
                                 <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                            </div>`
+                            </div>
+                        `;
 
                         loginMessages.append(html);
 
@@ -592,10 +592,11 @@ function openLoginModal(passwordToken, tokenExpired) {
                         loginMessages.empty();
 
                         html = `
-                        <div class="message error-message">
-                            <span>Ups! Ein Fehler ist aufgetreten.</span>
-                            <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                        </div>`
+                            <div class="message error-message">
+                                <span>Ups! Ein Fehler ist aufgetreten.</span>
+                                <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                            </div>
+                        `;
 
                         loginMessages.append(html);
                         break;
@@ -604,25 +605,26 @@ function openLoginModal(passwordToken, tokenExpired) {
         });
     });
 
-    let formSignup = $('#form-signup');
+    const formSignup = $('#form-signup');
 
-    $(formSignup).on("submit", function (e) {
+    $(formSignup).on('submit', function (e) {
         e.preventDefault();
 
-        let signupUsername = $('#signup-username');
-        let signupEmail = $('#signup-email');
-        let signupPassword = $('#signup-password');
-        let signupPasswordRepeat = $('#signup-password-repeat');
+        const signupUsername = $('#signup-username');
+        const signupEmail = $('#signup-email');
+        const signupPassword = $('#signup-password');
+        const signupPasswordRepeat = $('#signup-password-repeat');
 
         if (signupPassword.val() !== signupPasswordRepeat.val()) {
             // Display info passwords not matching
             signupMessages.empty();
 
-            let html = `
-             <div class="message error-message">
-                 <span>Passwörter stimmen nicht überein.</span>
-                 <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-             </div>`
+            const html = `
+                <div class="message error-message">
+                    <span>Passwörter stimmen nicht überein.</span>
+                    <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                </div>
+            `;
 
             signupMessages.append(html);
         } else {
@@ -640,11 +642,12 @@ function openLoginModal(passwordToken, tokenExpired) {
                     // Display info to check inbox
                     signupMessages.empty();
 
-                    let html = `
-                     <div class="message success-message">
-                         <span>Erfolgreich registriert. Bitte bestätigen Sie Ihre E-Mail Adresse bevor Sie sich einloggen. Sie erhalten in kürze eine E-Mail mit einem Bestätigungslink.</span>
-                         <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                     </div>`
+                    const html = `
+                        <div class="message success-message">
+                            <span>Erfolgreich registriert. Bitte bestätigen Sie Ihre E-Mail Adresse bevor Sie sich einloggen. Sie erhalten in kürze eine E-Mail mit einem Bestätigungslink.</span>
+                            <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                        </div>
+                    `;
 
                     signupMessages.append(html);
                 },
@@ -657,10 +660,11 @@ function openLoginModal(passwordToken, tokenExpired) {
                             signupMessages.empty();
 
                             html = `
-                            <div class="message error-message">
-                                <span>E-Mail existiert bereits. Bitte stattdessen anmelden.</span>
-                                <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                            </div>`
+                                <div class="message error-message">
+                                    <span>E-Mail existiert bereits. Bitte stattdessen anmelden.</span>
+                                    <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                                </div>
+                            `;
 
                             signupMessages.append(html);
                             break;
@@ -670,10 +674,11 @@ function openLoginModal(passwordToken, tokenExpired) {
                             signupMessages.empty();
 
                             html = `
-                            <div class="message error-message">
-                                <span>Ups! Ein Fehler ist aufgetreten.</span>
-                                <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                            </div>`
+                                <div class="message error-message">
+                                    <span>Ups! Ein Fehler ist aufgetreten.</span>
+                                    <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                                </div>
+                            `;
 
                             signupMessages.append(html);
                             break;
@@ -683,12 +688,12 @@ function openLoginModal(passwordToken, tokenExpired) {
         }
     });
 
-    let formResetPassword = $('#form-reset-password');
+    const formResetPassword = $('#form-reset-password');
 
-    $(formResetPassword).on("submit", function (e) {
+    $(formResetPassword).on('submit', function (e) {
         e.preventDefault();
 
-        let resetEmail = $('#reset-email');
+        const resetEmail = $('#reset-email');
 
         $.ajax({
             global: false,
@@ -699,14 +704,15 @@ function openLoginModal(passwordToken, tokenExpired) {
                 email: resetEmail.val()
             },
             success: () => {
-                // Show "Check mail"
+                // Show 'Check mail'
                 resetPasswordMessages.empty();
 
                 html = `
-                <div class="message success-message">
-                    <span>Erfolgreich! Bitte überprüfen Sie Ihr Postfach.</span>
-                    <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                </div>`
+                    <div class="message success-message">
+                        <span>Erfolgreich! Bitte überprüfen Sie Ihr Postfach.</span>
+                        <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                    </div>
+                `;
 
                 resetPasswordMessages.append(html);
             },
@@ -717,10 +723,11 @@ function openLoginModal(passwordToken, tokenExpired) {
                         resetPasswordMessages.empty();
 
                         html = `
-                        <div class="message error-message">
-                            <span>Ein Konto mit dieser E-Mail-Adresse existiert nicht.</span>
-                            <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                        </div>`
+                            <div class="message error-message">
+                                <span>Ein Konto mit dieser E-Mail-Adresse existiert nicht.</span>
+                                <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                            </div>
+                        `;
 
                         resetPasswordMessages.append(html);
                         break;
@@ -730,10 +737,11 @@ function openLoginModal(passwordToken, tokenExpired) {
                         resetPasswordMessages.empty();
 
                         html = `
-                        <div class="message error-message">
-                            <span>Ups! Ein Fehler ist aufgetreten.</span>
-                            <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                        </div>`
+                            <div class="message error-message">
+                                <span>Ups! Ein Fehler ist aufgetreten.</span>
+                                <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                            </div>
+                        `;
 
                         resetPasswordMessages.append(html);
                         break;
@@ -742,24 +750,25 @@ function openLoginModal(passwordToken, tokenExpired) {
         });
     });
 
-    let formResetPasswordToken = $('#form-reset-password-token');
-    let resetTokenMessages = $('#reset-token-messages')
+    const formResetPasswordToken = $('#form-reset-password-token');
+    const resetTokenMessages = $('#reset-token-messages')
 
-    $(formResetPasswordToken).on("submit", function (e) {
+    $(formResetPasswordToken).on('submit', function (e) {
         e.preventDefault();
 
-        let resetPassword = $('#reset-token-password');
-        let resetPasswordRepeat = $('#reset-token-password-repeat');
+        const resetPassword = $('#reset-token-password');
+        const resetPasswordRepeat = $('#reset-token-password-repeat');
 
         if (resetPassword.val() !== resetPasswordRepeat.val()) {
             // Display info passwords not matching
             resetTokenMessages.empty();
 
-            let html = `
+            const html = `
                 <div class="message error-message">
                     <span>Passwörter stimmen nicht überein.</span>
                     <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                </div>`
+                </div>
+            `;
 
             resetTokenMessages.append(html);
         } else {
@@ -783,10 +792,11 @@ function openLoginModal(passwordToken, tokenExpired) {
                             resetPasswordMessages.empty();
 
                             html = `
-                            <div class="message error-message">
-                                <span>Ein Konto mit dieser E-Mail-Adresse existiert nicht.</span>
-                                <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                            </div>`
+                                <div class="message error-message">
+                                    <span>Ein Konto mit dieser E-Mail-Adresse existiert nicht.</span>
+                                    <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                                </div>
+                            `;
 
                             resetPasswordMessages.append(html);
                             break;
@@ -796,10 +806,11 @@ function openLoginModal(passwordToken, tokenExpired) {
                             resetPasswordMessages.empty();
 
                             html = `
-                            <div class="message error-message">
-                                <span>Ups! Ein Fehler ist aufgetreten.</span>
-                                <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
-                            </div>`
+                                <div class="message error-message">
+                                    <span>Ups! Ein Fehler ist aufgetreten.</span>
+                                    <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
+                                </div>
+                            `;
 
                             resetPasswordMessages.append(html);
                             break;
@@ -826,10 +837,10 @@ function logout() {
 
 // Resend Mail
 function resendMail() {
-    let resendMail = $('#resend-mail');
-    let loginMessages = $('#login-messages')
+    const resendMail = $('#resend-mail');
+    const loginMessages = $('#login-messages')
 
-    $(resendMail).on("click", function (e) {
+    $(resendMail).on('click', function (e) {
         e.preventDefault();
 
         $.ajax({
@@ -850,7 +861,7 @@ function resendMail() {
                         <span>E-Mail wurde gesendet. Bitte überprüfen Sie Ihr Postfach.</span>
                         <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
                     </div>
-                    `;
+                `;
 
                 loginMessages.append(html);
             },
@@ -867,7 +878,7 @@ function resendMail() {
                                 <span>E-Mail wurde noch nicht registriert oder wurde bereits bestätigt.</span>
                                 <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
                             </div>
-                            `;
+                        `;
 
                         loginMessages.append(html);
                         break;
@@ -881,7 +892,7 @@ function resendMail() {
                                 <span>Ups! Ein Fehler ist aufgetreten.</span>
                                 <span class="message-close" onclick="closeErrorMessage(this);"><i class="fas fa-times-circle"></i></span>
                             </div>
-                            `;
+                        `;
 
                         loginMessages.append(html);
                         break;

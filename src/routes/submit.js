@@ -1,10 +1,10 @@
 const router = require('express').Router();
-const { stream } = require('exceljs');
 const mysql = require('../database/mysql');
 const excel = require('exceljs');
-const tempfile = require('tempfile');
 
+////////////////////////////////////////////
 // Global functions
+////////////////////////////////////////////
 const functions = require('../public/js/functions');
 const nws = functions.nws;
 const isLoggedIn = functions.isLoggedIn;
@@ -161,16 +161,10 @@ module.exports = function () {
     async function submitBluRayCreate(req, res) {
         try {
             const userId = req.user.id;
-            const title = req.body.title;
-            const actor = req.body.actor;
-            const director = req.body.director;
-            const genre = req.body.genre;
-            const year = req.body.year;
-            const lend = req.body.lend;
-            const length = req.body.length;
-            const note = req.body.note;
+            const { title, actor, director, genre, year, lend, length, note } = req.body;
 
-            const sql = nws`INSERT INTO bluray (user_id,title,actor,director,genre,year,lend,length,note)
+            const sql = nws`
+                INSERT INTO bluray (user_id,title,actor,director,genre,year,lend,length,note)
                 VALUES (
                     ${mysql.escape(userId)},
                     ${mysql.escape(title)},
@@ -181,7 +175,8 @@ module.exports = function () {
                     ${mysql.escape(lend)},
                     ${mysql.escape(length)},
                     ${mysql.escape(note)}
-                )`;
+                )
+                `;
 
             await mysql.query(sql);
 
@@ -195,9 +190,10 @@ module.exports = function () {
     async function submitBluRayRead(req, res) {
         try {
             const userId = req.user.id;
-            const searchTerm = req.body.searchTerm;
+            const { searchTerm } = req.body;
 
-            const sql = nws`SELECT *
+            const sql = nws`
+                SELECT *
                 FROM bluray
                 WHERE user_id=${mysql.escape(userId)}
                 AND (
@@ -209,14 +205,13 @@ module.exports = function () {
                    OR lend LIKE '%${searchTerm}%'
                    OR length LIKE '%${searchTerm}%'
                    OR note LIKE '%${searchTerm}%'
-                )`;
+                )
+                `;
 
             let result = await mysql.query(sql);
             result = result[0];
 
-            let json = JSON.stringify(result);
-            let obj = JSON.parse(json);
-            return res.json(obj);
+            return res.json(result);
         } catch (err) {
             console.error(err);
             res.sendStatus(500);
@@ -225,27 +220,29 @@ module.exports = function () {
 
     async function submitBluRayUpdate(req, res) {
         try {
-            const bluRayId = req.body.bluRayId;
-            const title = req.body.title;
-            const actor = req.body.actor;
-            const director = req.body.director;
-            const genre = req.body.genre;
-            const year = req.body.year;
-            const lend = req.body.lend;
-            const length = req.body.length;
-            const note = req.body.note;
+            let { bluRayId, title, actor, director, genre, year, lend, length, note } = req.body;
+            bluRayId = blurayId.replace(/\s*,\s*/g, ', ');
+            title = title.replace(/\s*,\s*/g, ', ');
+            actor = actor.replace(/\s*,\s*/g, ', ');
+            director = director.replace(/\s*,\s*/g, ', ');
+            genre = genre.replace(/\s*,\s*/g, ', ');
+            lend = lend.replace(/\s*,\s*/g, ', ');
+            note = note.replace(/\s*,\s*/g, ', ');
 
             // Check if movie has entry
-            const sql = nws`SELECT id
+            const sql = nws`
+                SELECT id
                 FROM bluray
-                WHERE id=${mysql.escape(bluRayId)}`;
+                WHERE id=${mysql.escape(bluRayId)}
+                `;
 
             let result = await mysql.query(sql);
             result = result[0];
 
             if (result !== undefined && result.length > 0) {
                 // Update the movie
-                const sql = nws`UPDATE bluray
+                const sql = nws`
+                    UPDATE bluray
                     SET title=${mysql.escape(title)},
                         actor=${mysql.escape(actor)},
                         director=${mysql.escape(director)},
@@ -254,7 +251,8 @@ module.exports = function () {
                         lend=${mysql.escape(lend)},
                         length=${mysql.escape(length)},
                         note=${mysql.escape(note)}
-                    WHERE id=${mysql.escape(bluRayId)}`;
+                    WHERE id=${mysql.escape(bluRayId)}
+                    `;
 
                 await mysql.query(sql);
 
@@ -268,15 +266,16 @@ module.exports = function () {
 
     async function submitBluRayDelete(req, res) {
         try {
-            const userId = req.user.id;
             const ids = JSON.parse(req.body.idsToDelete);
 
             for (const i in ids) {
                 const id = ids[i];
 
-                const sql = nws`DELETE
+                const sql = nws`
+                    DELETE
                     FROM bluray
-                    WHERE id=${mysql.escape(id)}`;
+                    WHERE id=${mysql.escape(id)}
+                    `;
 
                 await mysql.query(sql);
             }
@@ -293,7 +292,7 @@ module.exports = function () {
             const userId = req.user.id;
 
             // Getting all BluRay info from this user
-            let sql = nws`
+            const sql = nws`
                 SELECT *
                 FROM bluray
                 WHERE user_id=${mysql.escape(userId)}
@@ -302,20 +301,20 @@ module.exports = function () {
             let blurays = await mysql.query(sql);
             blurays = blurays[0];
 
-            for (var i in blurays) {
+            for (const i in blurays) {
                 let bluray = blurays[i];
-                bluray.title = bluray.title.split(" , ").join(", ");
-                bluray.actor = bluray.actor.split(" , ").join(", ");
-                bluray.director = bluray.director.split(" , ").join(", ");
-                bluray.genre = bluray.genre.split(" , ").join(", ");
-                bluray.lend = bluray.lend.split(" , ").join(", ");
-                bluray.note = bluray.note.split(" , ").join(", ");
+                bluray.title = bluray.title.replace(/\s*,\s*/g, ', ');
+                bluray.actor = bluray.actor.replace(/\s*,\s*/g, ', ');
+                bluray.director = bluray.director.replace(/\s*,\s*/g, ', ');
+                bluray.genre = bluray.genre.replace(/\s*,\s*/g, ', ');
+                bluray.lend = bluray.lend.replace(/\s*,\s*/g, ', ');
+                bluray.note = bluray.note.replace(/\s*,\s*/g, ', ');
             }
 
             // Setting up the excel file
-            let filename = 'BluRays.xlsx';
-            let workbook = new excel.Workbook();
-            let worksheet = workbook.addWorksheet('BluRays');
+            const filename = 'BluRays.xlsx';
+            const workbook = new excel.Workbook();
+            const worksheet = workbook.addWorksheet('BluRays');
 
             worksheet.columns = [
                 { header: 'Titel', key: 'title', width: 50 },
@@ -377,7 +376,7 @@ module.exports = function () {
 
             // Return the excel file
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            res.setHeader("Content-Disposition", "attachment; filename=" + filename);
+            res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
             await workbook.xlsx.write(res);
             res.end();
         } catch (err) {
@@ -390,11 +389,11 @@ module.exports = function () {
         try {
             const userId = req.user.id;
 
-            let headerData = ['Titel', 'Schauspieler', 'Regisseur', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
-            let bodyData = [];
+            const headerData = ['Titel', 'Schauspieler', 'Regisseur', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
+            const bodyData = [];
 
             // Getting all BluRay info from this user
-            let sql = nws`
+            const sql = nws`
                 SELECT *
                 FROM bluray
                 WHERE user_id=${mysql.escape(userId)}
@@ -403,21 +402,21 @@ module.exports = function () {
             let blurays = await mysql.query(sql);
             blurays = blurays[0];
 
-            for (let i in blurays) {
+            for (const i in blurays) {
                 const bluray = blurays[i];
                 bodyData.push([
-                    bluray.title.split(" , ").join(", "),
-                    bluray.actor.split(" , ").join(", "),
-                    bluray.director.split(" , ").join(", "),
-                    bluray.genre.split(" , ").join(", "),
+                    bluray.title.replace(/\s*,\s*/g, ', '),
+                    bluray.actor.replace(/\s*,\s*/g, ', '),
+                    bluray.director.replace(/\s*,\s*/g, ', '),
+                    bluray.genre.replace(/\s*,\s*/g, ', '),
                     bluray.length,
                     bluray.year,
-                    bluray.lend.split(" , ").join(", "),
-                    bluray.note.split(" , ").join(", ")
+                    bluray.lend.replace(/\s*,\s*/g, ', '),
+                    bluray.note.replace(/\s*,\s*/g, ', ')
                 ]);
             }
 
-            let data = {
+            const data = {
                 head: headerData,
                 body: bodyData
             };
@@ -432,16 +431,10 @@ module.exports = function () {
     async function submitDvdCreate(req, res) {
         try {
             const userId = req.user.id;
-            const title = req.body.title;
-            const actor = req.body.actor;
-            const director = req.body.director;
-            const genre = req.body.genre;
-            const year = req.body.year;
-            const lend = req.body.lend;
-            const length = req.body.length;
-            const note = req.body.note;
+            const { title, actor, director, genre, year, lend, length, note } = req.body;
 
-            const sql = nws`INSERT INTO dvd (user_id,title,actor,director,genre,year,lend,length,note)
+            const sql = nws`
+                INSERT INTO dvd (user_id,title,actor,director,genre,year,lend,length,note)
                 VALUES (
                     ${mysql.escape(userId)},
                     ${mysql.escape(title)},
@@ -452,7 +445,8 @@ module.exports = function () {
                     ${mysql.escape(lend)},
                     ${mysql.escape(length)},
                     ${mysql.escape(note)}
-                )`;
+                )
+                `;
 
             await mysql.query(sql);
 
@@ -466,9 +460,10 @@ module.exports = function () {
     async function submitDvdRead(req, res) {
         try {
             const userId = req.user.id;
-            const searchTerm = req.body.searchTerm;
+            const { searchTerm } = req.body;
 
-            const sql = nws`SELECT *
+            const sql = nws`
+                SELECT *
                 FROM dvd
                 WHERE user_id=${mysql.escape(userId)}
                 AND (
@@ -480,14 +475,13 @@ module.exports = function () {
                    OR lend LIKE '%${searchTerm}%'
                    OR length LIKE '%${searchTerm}%'
                    OR note LIKE '%${searchTerm}%'
-                )`;
+                )
+                `;
 
             let result = await mysql.query(sql);
             result = result[0];
 
-            let json = JSON.stringify(result);
-            let obj = JSON.parse(json);
-            return res.json(obj);
+            return res.json(result);
         } catch (err) {
             console.error(err);
             res.sendStatus(500);
@@ -496,27 +490,29 @@ module.exports = function () {
 
     async function submitDvdUpdate(req, res) {
         try {
-            const dvdId = req.body.dvdId;
-            const title = req.body.title;
-            const actor = req.body.actor;
-            const director = req.body.director;
-            const genre = req.body.genre;
-            const year = req.body.year;
-            const lend = req.body.lend;
-            const length = req.body.length;
-            const note = req.body.note;
+            let { dvdId, title, actor, director, genre, year, lend, length, note } = req.body;
+            dvdId = dvdId.replace(/\s*,\s*/g, ', ');
+            title = title.replace(/\s*,\s*/g, ', ');
+            actor = actor.replace(/\s*,\s*/g, ', ');
+            director = director.replace(/\s*,\s*/g, ', ');
+            genre = genre.replace(/\s*,\s*/g, ', ');
+            lend = lend.replace(/\s*,\s*/g, ', ');
+            note = note.replace(/\s*,\s*/g, ', ');
 
             // Check if movie has entry
-            const sql = nws`SELECT id
+            const sql = nws`
+                SELECT id
                 FROM dvd
-                WHERE id=${mysql.escape(dvdId)}`;
+                WHERE id=${mysql.escape(dvdId)}
+                `;
 
             let result = await mysql.query(sql);
             result = result[0];
 
             if (result !== undefined && result.length > 0) {
                 // Update the movie
-                const sql = nws`UPDATE dvd
+                const sql = nws`
+                    UPDATE dvd
                     SET title=${mysql.escape(title)},
                         actor=${mysql.escape(actor)},
                         director=${mysql.escape(director)},
@@ -525,7 +521,8 @@ module.exports = function () {
                         lend=${mysql.escape(lend)},
                         length=${mysql.escape(length)},
                         note=${mysql.escape(note)}
-                    WHERE id=${mysql.escape(dvdId)}`;
+                    WHERE id=${mysql.escape(dvdId)}
+                    `;
 
                 await mysql.query(sql);
 
@@ -539,15 +536,16 @@ module.exports = function () {
 
     async function submitDvdDelete(req, res) {
         try {
-            const userId = req.user.id;
             const ids = JSON.parse(req.body.idsToDelete);
 
             for (const i in ids) {
                 const id = ids[i];
 
-                const sql = nws`DELETE
+                const sql = nws`
+                    DELETE
                     FROM dvd
-                    WHERE id=${mysql.escape(id)}`;
+                    WHERE id=${mysql.escape(id)}
+                    `;
 
                 await mysql.query(sql);
             }
@@ -564,7 +562,7 @@ module.exports = function () {
             const userId = req.user.id;
 
             // Getting all DVD info from this user
-            let sql = nws`
+            const sql = nws`
                 SELECT *
                 FROM dvd
                 WHERE user_id=${mysql.escape(userId)}
@@ -573,20 +571,20 @@ module.exports = function () {
             let dvds = await mysql.query(sql);
             dvds = dvds[0];
 
-            for (var i in dvds) {
-                let dvd = dvds[i];
-                dvd.title = dvd.title.split(" , ").join(", ");
-                dvd.actor = dvd.actor.split(" , ").join(", ");
-                dvd.director = dvd.director.split(" , ").join(", ");
-                dvd.genre = dvd.genre.split(" , ").join(", ");
-                dvd.lend = dvd.lend.split(" , ").join(", ");
-                dvd.note = dvd.note.split(" , ").join(", ");
+            for (const i in dvds) {
+                const dvd = dvds[i];
+                dvd.title = dvd.title.replace(/\s*,\s*/g, ', ');
+                dvd.actor = dvd.actor.replace(/\s*,\s*/g, ', ');
+                dvd.director = dvd.director.replace(/\s*,\s*/g, ', ');
+                dvd.genre = dvd.genre.replace(/\s*,\s*/g, ', ');
+                dvd.lend = dvd.lend.replace(/\s*,\s*/g, ', ');
+                dvd.note = dvd.note.replace(/\s*,\s*/g, ', ');
             }
 
             // Setting up the excel file
-            let filename = 'DVDs.xlsx';
-            let workbook = new excel.Workbook();
-            let worksheet = workbook.addWorksheet('DVDs');
+            const filename = 'DVDs.xlsx';
+            const workbook = new excel.Workbook();
+            const worksheet = workbook.addWorksheet('DVDs');
 
             worksheet.columns = [
                 { header: 'Titel', key: 'title', width: 50 },
@@ -648,7 +646,7 @@ module.exports = function () {
 
             // Return the excel file
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            res.setHeader("Content-Disposition", "attachment; filename=" + filename);
+            res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
             await workbook.xlsx.write(res);
             res.end();
         } catch (err) {
@@ -661,11 +659,11 @@ module.exports = function () {
         try {
             const userId = req.user.id;
 
-            let headerData = ['Titel', 'Schauspieler', 'Regisseur', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
-            let bodyData = [];
+            const headerData = ['Titel', 'Schauspieler', 'Regisseur', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
+            const bodyData = [];
 
             // Getting all DVD info from this user
-            let sql = nws`
+            const sql = nws`
                 SELECT *
                 FROM dvd
                 WHERE user_id=${mysql.escape(userId)}
@@ -674,21 +672,21 @@ module.exports = function () {
             let dvds = await mysql.query(sql);
             dvds = dvds[0];
 
-            for (let i in dvds) {
+            for (const i in dvds) {
                 const dvd = dvds[i];
                 bodyData.push([
-                    dvd.title.split(" , ").join(", "),
-                    dvd.actor.split(" , ").join(", "),
-                    dvd.director.split(" , ").join(", "),
-                    dvd.genre.split(" , ").join(", "),
+                    dvd.title.replace(/\s*,\s*/g, ', '),
+                    dvd.actor.replace(/\s*,\s*/g, ', '),
+                    dvd.director.replace(/\s*,\s*/g, ', '),
+                    dvd.genre.replace(/\s*,\s*/g, ', '),
                     dvd.length,
                     dvd.year,
-                    dvd.lend.split(" , ").join(", "),
-                    dvd.note.split(" , ").join(", ")
+                    dvd.lend.replace(/\s*,\s*/g, ', '),
+                    dvd.note.replace(/\s*,\s*/g, ', ')
                 ]);
             }
 
-            let data = {
+            const data = {
                 head: headerData,
                 body: bodyData
             };
@@ -703,15 +701,10 @@ module.exports = function () {
     async function submitCdCreate(req, res) {
         try {
             const userId = req.user.id;
-            const title = req.body.title;
-            const band = req.body.band;
-            const genre = req.body.genre;
-            const year = req.body.year;
-            const lend = req.body.lend;
-            const length = req.body.length;
-            const note = req.body.note;
+            const { title, band, genre, year, lend, length, note } = req.body;
 
-            const sql = nws`INSERT INTO cd (user_id,title,band,genre,year,lend,length,note)
+            const sql = nws`
+                INSERT INTO cd (user_id,title,band,genre,year,lend,length,note)
                 VALUES (
                     ${mysql.escape(userId)},
                     ${mysql.escape(title)},
@@ -721,7 +714,8 @@ module.exports = function () {
                     ${mysql.escape(lend)},
                     ${mysql.escape(length)},
                     ${mysql.escape(note)}
-                )`;
+                )
+                `;
 
             await mysql.query(sql);
 
@@ -735,9 +729,10 @@ module.exports = function () {
     async function submitCdRead(req, res) {
         try {
             const userId = req.user.id;
-            const searchTerm = req.body.searchTerm;
+            const { searchTerm } = req.body;
 
-            const sql = nws`SELECT *
+            const sql = nws`
+                SELECT *
                 FROM cd
                 WHERE user_id=${mysql.escape(userId)}
                 AND (
@@ -748,14 +743,13 @@ module.exports = function () {
                    OR lend LIKE '%${searchTerm}%'
                    OR length LIKE '%${searchTerm}%'
                    OR note LIKE '%${searchTerm}%'
-                )`;
+                )
+                `;
 
             let result = await mysql.query(sql);
             result = result[0];
 
-            let json = JSON.stringify(result);
-            let obj = JSON.parse(json);
-            return res.json(obj);
+            return res.json(result);
         } catch (err) {
             console.error(err);
             res.sendStatus(500);
@@ -764,26 +758,28 @@ module.exports = function () {
 
     async function submitCdUpdate(req, res) {
         try {
-            const cdId = req.body.cdId;
-            const title = req.body.title;
-            const band = req.body.band;
-            const genre = req.body.genre;
-            const year = req.body.year;
-            const lend = req.body.lend;
-            const length = req.body.length;
-            const note = req.body.note;
+            let { cdId, title, band, genre, year, lend, length, note } = req.body;
+            cdId = cdId.replace(/\s*,\s*/g, ', ');
+            title = title.replace(/\s*,\s*/g, ', ');
+            band = band.replace(/\s*,\s*/g, ', ');
+            genre = genre.replace(/\s*,\s*/g, ', ');
+            lend = lend.replace(/\s*,\s*/g, ', ');
+            note = note.replace(/\s*,\s*/g, ', ');
 
             // Check if movie has entry
-            const sql = nws`SELECT id
+            const sql = nws`
+                SELECT id
                 FROM cd
-                WHERE id=${mysql.escape(cdId)}`;
+                WHERE id=${mysql.escape(cdId)}
+                `;
 
             let result = await mysql.query(sql);
             result = result[0];
 
             if (result !== undefined && result.length > 0) {
                 // Update the movie
-                const sql = nws`UPDATE cd
+                const sql = nws`
+                    UPDATE cd
                     SET title=${mysql.escape(title)},
                         band=${mysql.escape(band)},
                         genre=${mysql.escape(genre)},
@@ -791,7 +787,8 @@ module.exports = function () {
                         lend=${mysql.escape(lend)},
                         length=${mysql.escape(length)},
                         note=${mysql.escape(note)}
-                    WHERE id=${mysql.escape(cdId)}`;
+                    WHERE id=${mysql.escape(cdId)}
+                    `;
 
                 await mysql.query(sql);
 
@@ -805,15 +802,16 @@ module.exports = function () {
 
     async function submitCdDelete(req, res) {
         try {
-            const userId = req.user.id;
             const ids = JSON.parse(req.body.idsToDelete);
 
             for (const i in ids) {
                 const id = ids[i];
 
-                const sql = nws`DELETE
+                const sql = nws`
+                    DELETE
                     FROM cd
-                    WHERE id=${mysql.escape(id)}`;
+                    WHERE id=${mysql.escape(id)}
+                    `;
 
                 await mysql.query(sql);
             }
@@ -830,7 +828,7 @@ module.exports = function () {
             const userId = req.user.id;
 
             // Getting all CD info from this user
-            let sql = nws`
+            const sql = nws`
                 SELECT *
                 FROM cd
                 WHERE user_id=${mysql.escape(userId)}
@@ -839,19 +837,19 @@ module.exports = function () {
             let cds = await mysql.query(sql);
             cds = cds[0];
 
-            for (var i in cds) {
-                let cd = cds[i];
-                cd.title = cd.title.split(" , ").join(", ");
-                cd.band = cd.band.split(" , ").join(", ");
-                cd.genre = cd.genre.split(" , ").join(", ");
-                cd.lend = cd.lend.split(" , ").join(", ");
-                cd.note = cd.note.split(" , ").join(", ");
+            for (const i in cds) {
+                const cd = cds[i];
+                cd.title = cd.title.replace(/\s*,\s*/g, ', ');
+                cd.band = cd.band.replace(/\s*,\s*/g, ', ');
+                cd.genre = cd.genre.replace(/\s*,\s*/g, ', ');
+                cd.lend = cd.lend.replace(/\s*,\s*/g, ', ');
+                cd.note = cd.note.replace(/\s*,\s*/g, ', ');
             }
 
             // Setting up the excel file
-            let filename = 'CDs.xlsx';
-            let workbook = new excel.Workbook();
-            let worksheet = workbook.addWorksheet('CDs');
+            const filename = 'CDs.xlsx';
+            const workbook = new excel.Workbook();
+            const worksheet = workbook.addWorksheet('CDs');
 
             worksheet.columns = [
                 { header: 'Titel', key: 'title', width: 50 },
@@ -912,7 +910,7 @@ module.exports = function () {
 
             // Return the excel file
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            res.setHeader("Content-Disposition", "attachment; filename=" + filename);
+            res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
             await workbook.xlsx.write(res);
             res.end();
         } catch (err) {
@@ -925,11 +923,11 @@ module.exports = function () {
         try {
             const userId = req.user.id;
 
-            let headerData = ['Titel', 'Künstler/Band', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
-            let bodyData = [];
+            const headerData = ['Titel', 'Künstler/Band', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
+            const bodyData = [];
 
             // Getting all CD info from this user
-            let sql = nws`
+            const sql = nws`
                 SELECT *
                 FROM cd
                 WHERE user_id=${mysql.escape(userId)}
@@ -938,20 +936,20 @@ module.exports = function () {
             let cds = await mysql.query(sql);
             cds = cds[0];
 
-            for (let i in cds) {
+            for (const i in cds) {
                 const cd = cds[i];
                 bodyData.push([
-                    cd.title.split(" , ").join(", "),
-                    cd.band.split(" , ").join(", "),
-                    cd.genre.split(" , ").join(", "),
+                    cd.title.replace(/\s*,\s*/g, ', '),
+                    cd.band.replace(/\s*,\s*/g, ', '),
+                    cd.genre.replace(/\s*,\s*/g, ', '),
                     cd.length,
                     cd.year,
-                    cd.lend.split(" , ").join(", "),
-                    cd.note.split(" , ").join(", ")
+                    cd.lend.replace(/\s*,\s*/g, ', '),
+                    cd.note.replace(/\s*,\s*/g, ', ')
                 ]);
             }
 
-            let data = {
+            const data = {
                 head: headerData,
                 body: bodyData
             };
@@ -966,16 +964,10 @@ module.exports = function () {
     async function submitVinylCreate(req, res) {
         try {
             const userId = req.user.id;
-            const title = req.body.title;
-            const band = req.body.band;
-            const genre = req.body.genre;
-            const type = req.body.type;
-            const year = req.body.year;
-            const lend = req.body.lend;
-            const length = req.body.length;
-            const note = req.body.note;
+            const { title, band, genre, type, year, lend, length, note } = req.body;
 
-            const sql = nws`INSERT INTO vinyl (user_id,title,band,genre,type,year,lend,length,note)
+            const sql = nws`
+                INSERT INTO vinyl (user_id,title,band,genre,type,year,lend,length,note)
                 VALUES (
                     ${mysql.escape(userId)},
                     ${mysql.escape(title)},
@@ -986,7 +978,8 @@ module.exports = function () {
                     ${mysql.escape(lend)},
                     ${mysql.escape(length)},
                     ${mysql.escape(note)}
-                )`;
+                )
+                `;
 
             await mysql.query(sql);
 
@@ -1002,7 +995,8 @@ module.exports = function () {
             const userId = req.user.id;
             const searchTerm = req.body.searchTerm;
 
-            const sql = nws`SELECT *
+            const sql = nws`
+                SELECT *
                 FROM vinyl
                 WHERE user_id=${mysql.escape(userId)}
                 AND (
@@ -1014,14 +1008,13 @@ module.exports = function () {
                    OR lend LIKE '%${searchTerm}%'
                    OR length LIKE '%${searchTerm}%'
                    OR note LIKE '%${searchTerm}%'
-                )`;
+                )
+                `;
 
             let result = await mysql.query(sql);
             result = result[0];
 
-            let json = JSON.stringify(result);
-            let obj = JSON.parse(json);
-            return res.json(obj);
+            return res.json(result);
         } catch (err) {
             console.error(err);
             res.sendStatus(500);
@@ -1030,27 +1023,29 @@ module.exports = function () {
 
     async function submitVinylUpdate(req, res) {
         try {
-            const vinylId = req.body.vinylId;
-            const title = req.body.title;
-            const band = req.body.band;
-            const genre = req.body.genre;
-            const type = req.body.type;
-            const year = req.body.year;
-            const lend = req.body.lend;
-            const length = req.body.length;
-            const note = req.body.note;
+            let { vinylId, title, band, genre, type, year, lend, length, note } = req.body;
+            vinylId = vinylId.replace(/\s*,\s*/g, ', ');
+            title = title.replace(/\s*,\s*/g, ', ');
+            band = band.replace(/\s*,\s*/g, ', ');
+            genre = genre.replace(/\s*,\s*/g, ', ');
+            type = type.replace(/\s*,\s*/g, ', ');
+            lend = lend.replace(/\s*,\s*/g, ', ');
+            note = note.replace(/\s*,\s*/g, ', ');
 
             // Check if movie has entry
-            const sql = nws`SELECT id
+            const sql = nws`
+                SELECT id
                 FROM vinyl
-                WHERE id=${mysql.escape(vinylId)}`;
+                WHERE id=${mysql.escape(vinylId)}
+                `;
 
             let result = await mysql.query(sql);
             result = result[0];
 
             if (result !== undefined && result.length > 0) {
                 // Update the movie
-                const sql = nws`UPDATE vinyl
+                const sql = nws`
+                    UPDATE vinyl
                     SET title=${mysql.escape(title)},
                         band=${mysql.escape(band)},
                         genre=${mysql.escape(genre)},
@@ -1059,7 +1054,8 @@ module.exports = function () {
                         lend=${mysql.escape(lend)},
                         length=${mysql.escape(length)},
                         note=${mysql.escape(note)}
-                    WHERE id=${mysql.escape(vinylId)}`;
+                    WHERE id=${mysql.escape(vinylId)}
+                    `;
 
                 await mysql.query(sql);
 
@@ -1073,15 +1069,16 @@ module.exports = function () {
 
     async function submitVinylDelete(req, res) {
         try {
-            const userId = req.user.id;
             const ids = JSON.parse(req.body.idsToDelete);
 
             for (const i in ids) {
                 const id = ids[i];
 
-                const sql = nws`DELETE
+                const sql = nws`
+                    DELETE
                     FROM vinyl
-                    WHERE id=${mysql.escape(id)}`;
+                    WHERE id=${mysql.escape(id)}
+                    `;
 
                 await mysql.query(sql);
             }
@@ -1098,7 +1095,7 @@ module.exports = function () {
             const userId = req.user.id;
 
             // Getting all vinyl info from this user
-            let sql = nws`
+            const sql = nws`
                 SELECT *
                 FROM vinyl
                 WHERE user_id=${mysql.escape(userId)}
@@ -1107,19 +1104,19 @@ module.exports = function () {
             let vinyls = await mysql.query(sql);
             vinyls = vinyls[0];
 
-            for (var i in vinyls) {
-                let vinyl = vinyls[i];
-                vinyl.title = vinyl.title.split(" , ").join(", ");
-                vinyl.band = vinyl.band.split(" , ").join(", ");
-                vinyl.genre = vinyl.genre.split(" , ").join(", ");
-                vinyl.lend = vinyl.lend.split(" , ").join(", ");
-                vinyl.note = vinyl.note.split(" , ").join(", ");
+            for (const i in vinyls) {
+                const vinyl = vinyls[i];
+                vinyl.title = vinyl.title.replace(/\s*,\s*/g, ', ');
+                vinyl.band = vinyl.band.replace(/\s*,\s*/g, ', ');
+                vinyl.genre = vinyl.genre.replace(/\s*,\s*/g, ', ');
+                vinyl.lend = vinyl.lend.replace(/\s*,\s*/g, ', ');
+                vinyl.note = vinyl.note.replace(/\s*,\s*/g, ', ');
             }
 
             // Setting up the excel file
-            let filename = 'Vinyls.xlsx';
-            let workbook = new excel.Workbook();
-            let worksheet = workbook.addWorksheet('Vinyls');
+            const filename = 'Vinyls.xlsx';
+            const workbook = new excel.Workbook();
+            const worksheet = workbook.addWorksheet('Vinyls');
 
             worksheet.columns = [
                 { header: 'Titel', key: 'title', width: 50 },
@@ -1181,7 +1178,7 @@ module.exports = function () {
 
             // Return the excel file
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            res.setHeader("Content-Disposition", "attachment; filename=" + filename);
+            res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
             await workbook.xlsx.write(res);
             res.end();
         } catch (err) {
@@ -1194,11 +1191,11 @@ module.exports = function () {
         try {
             const userId = req.user.id;
 
-            let headerData = ['Titel', 'Künstler/Band', 'Genre', 'Typ', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
-            let bodyData = [];
+            const headerData = ['Titel', 'Künstler/Band', 'Genre', 'Typ', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
+            const bodyData = [];
 
             // Getting all Vinyl info from this user
-            let sql = nws`
+            const sql = nws`
                 SELECT *
                 FROM vinyl
                 WHERE user_id=${mysql.escape(userId)}
@@ -1207,21 +1204,21 @@ module.exports = function () {
             let vinyls = await mysql.query(sql);
             vinyls = vinyls[0];
 
-            for (let i in vinyls) {
+            for (const i in vinyls) {
                 const vinyl = vinyls[i];
                 bodyData.push([
-                    vinyl.title.split(" , ").join(", "),
-                    vinyl.band.split(" , ").join(", "),
-                    vinyl.genre.split(" , ").join(", "),
-                    vinyl.type.split(" , ").join(", "),
+                    vinyl.title.replace(/\s*,\s*/g, ', '),
+                    vinyl.band.replace(/\s*,\s*/g, ', '),
+                    vinyl.genre.replace(/\s*,\s*/g, ', '),
+                    vinyl.type.replace(/\s*,\s*/g, ', '),
                     vinyl.length,
                     vinyl.year,
-                    vinyl.lend.split(" , ").join(", "),
-                    vinyl.note.split(" , ").join(", ")
+                    vinyl.lend.replace(/\s*,\s*/g, ', '),
+                    vinyl.note.replace(/\s*,\s*/g, ', ')
                 ]);
             }
 
-            let data = {
+            const data = {
                 head: headerData,
                 body: bodyData
             };
@@ -1239,7 +1236,8 @@ module.exports = function () {
             const searchTerm = req.body.searchTerm;
 
             // BluRay
-            let sql = nws`SELECT *
+            const sql = nws`
+                SELECT *
                 FROM bluray
                 WHERE user_id=${mysql.escape(userId)}
                 AND (
@@ -1251,16 +1249,15 @@ module.exports = function () {
                    OR lend LIKE '%${searchTerm}%'
                    OR length LIKE '%${searchTerm}%'
                    OR note LIKE '%${searchTerm}%'
-                )`;
+                )
+                `;
 
             let bluRays = await mysql.query(sql);
             bluRays = bluRays[0];
 
-            let bluRayJson = JSON.stringify(bluRays);
-            let bluRayObj = JSON.parse(bluRayJson);
-
             // DVD
-            sql = nws`SELECT *
+            sql = nws`
+                SELECT *
                 FROM dvd
                 WHERE user_id=${mysql.escape(userId)}
                 AND (
@@ -1272,16 +1269,15 @@ module.exports = function () {
                    OR lend LIKE '%${searchTerm}%'
                    OR length LIKE '%${searchTerm}%'
                    OR note LIKE '%${searchTerm}%'
-                )`;
+                )
+                `;
 
             let dvds = await mysql.query(sql);
             dvds = dvds[0];
 
-            let dvdJson = JSON.stringify(dvds);
-            let dvdObj = JSON.parse(dvdJson);
-
             // CD
-            sql = nws`SELECT *
+            sql = nws`
+                SELECT *
                 FROM cd
                 WHERE user_id=${mysql.escape(userId)}
                 AND (
@@ -1292,16 +1288,15 @@ module.exports = function () {
                    OR lend LIKE '%${searchTerm}%'
                    OR length LIKE '%${searchTerm}%'
                    OR note LIKE '%${searchTerm}%'
-                )`;
+                )
+                `;
 
             let cds = await mysql.query(sql);
             cds = cds[0];
 
-            let cdJson = JSON.stringify(cds);
-            let cdObj = JSON.parse(cdJson);
-
             // Vinyl
-            sql = nws`SELECT *
+            sql = nws`
+                SELECT *
                 FROM vinyl
                 WHERE user_id=${mysql.escape(userId)}
                 AND (
@@ -1313,15 +1308,13 @@ module.exports = function () {
                    OR lend LIKE '%${searchTerm}%'
                    OR length LIKE '%${searchTerm}%'
                    OR note LIKE '%${searchTerm}%'
-                )`;
+                )
+                `;
 
             let vinyls = await mysql.query(sql);
             vinyls = vinyls[0];
 
-            let vinylJson = JSON.stringify(vinyls);
-            let vinylObj = JSON.parse(vinylJson);
-
-            let objArray = [bluRayObj, dvdObj, cdObj, vinylObj];
+            let objArray = [blurays, dvds, cds, vinyls];
             return res.json(objArray);
         } catch (err) {
             console.error(err);
@@ -1334,8 +1327,8 @@ module.exports = function () {
             const userId = req.user.id;
 
             // Setting up the excel file
-            let filename = 'CDs.xlsx';
-            let workbook = new excel.Workbook();
+            const filename = 'VinylBank.xlsx';
+            const workbook = new excel.Workbook();
 
             ////////////////////////////////////////////
             // BluRay sheet
@@ -1351,17 +1344,17 @@ module.exports = function () {
             let blurays = await mysql.query(sql);
             blurays = blurays[0];
 
-            for (var i in blurays) {
-                let bluray = blurays[i];
-                bluray.title = bluray.title.split(" , ").join(", ");
-                bluray.actor = bluray.actor.split(" , ").join(", ");
-                bluray.director = bluray.director.split(" , ").join(", ");
-                bluray.genre = bluray.genre.split(" , ").join(", ");
-                bluray.lend = bluray.lend.split(" , ").join(", ");
-                bluray.note = bluray.note.split(" , ").join(", ");
+            for (const i in blurays) {
+                const bluray = blurays[i];
+                bluray.title = bluray.title.replace(/\s*,\s*/g, ', ');
+                bluray.actor = bluray.actor.replace(/\s*,\s*/g, ', ');
+                bluray.director = bluray.director.replace(/\s*,\s*/g, ', ');
+                bluray.genre = bluray.genre.replace(/\s*,\s*/g, ', ');
+                bluray.lend = bluray.lend.replace(/\s*,\s*/g, ', ');
+                bluray.note = bluray.note.replace(/\s*,\s*/g, ', ');
             }
 
-            let worksheetBluRays = workbook.addWorksheet('BluRays');
+            const worksheetBluRays = workbook.addWorksheet('BluRays');
 
             worksheetBluRays.columns = [
                 { header: 'Titel', key: 'title', width: 50 },
@@ -1435,17 +1428,17 @@ module.exports = function () {
             let dvds = await mysql.query(sql);
             dvds = dvds[0];
 
-            for (var i in dvds) {
-                let dvd = dvds[i];
-                dvd.title = dvd.title.split(" , ").join(", ");
-                dvd.actor = dvd.actor.split(" , ").join(", ");
-                dvd.director = dvd.director.split(" , ").join(", ");
-                dvd.genre = dvd.genre.split(" , ").join(", ");
-                dvd.lend = dvd.lend.split(" , ").join(", ");
-                dvd.note = dvd.note.split(" , ").join(", ");
+            for (const i in dvds) {
+                const dvd = dvds[i];
+                dvd.title = dvd.title.replace(/\s*,\s*/g, ', ');
+                dvd.actor = dvd.actor.replace(/\s*,\s*/g, ', ');
+                dvd.director = dvd.director.replace(/\s*,\s*/g, ', ');
+                dvd.genre = dvd.genre.replace(/\s*,\s*/g, ', ');
+                dvd.lend = dvd.lend.replace(/\s*,\s*/g, ', ');
+                dvd.note = dvd.note.replace(/\s*,\s*/g, ', ');
             }
 
-            let worksheetDvds = workbook.addWorksheet('DVDs');
+            const worksheetDvds = workbook.addWorksheet('DVDs');
 
             worksheetDvds.columns = [
                 { header: 'Titel', key: 'title', width: 50 },
@@ -1519,16 +1512,16 @@ module.exports = function () {
             let cds = await mysql.query(sql);
             cds = cds[0];
 
-            for (var i in cds) {
-                let cd = cds[i];
-                cd.title = cd.title.split(" , ").join(", ");
-                cd.band = cd.band.split(" , ").join(", ");
-                cd.genre = cd.genre.split(" , ").join(", ");
-                cd.lend = cd.lend.split(" , ").join(", ");
-                cd.note = cd.note.split(" , ").join(", ");
+            for (const i in cds) {
+                const cd = cds[i];
+                cd.title = cd.title.replace(/\s*,\s*/g, ', ');
+                cd.band = cd.band.replace(/\s*,\s*/g, ', ');
+                cd.genre = cd.genre.replace(/\s*,\s*/g, ', ');
+                cd.lend = cd.lend.replace(/\s*,\s*/g, ', ');
+                cd.note = cd.note.replace(/\s*,\s*/g, ', ');
             }
 
-            let worksheetCds = workbook.addWorksheet('CDs');
+            const worksheetCds = workbook.addWorksheet('CDs');
 
             worksheetCds.columns = [
                 { header: 'Titel', key: 'title', width: 50 },
@@ -1601,16 +1594,16 @@ module.exports = function () {
             let vinyls = await mysql.query(sql);
             vinyls = vinyls[0];
 
-            for (var i in vinyls) {
-                let vinyl = vinyls[i];
-                vinyl.title = vinyl.title.split(" , ").join(", ");
-                vinyl.band = vinyl.band.split(" , ").join(", ");
-                vinyl.genre = vinyl.genre.split(" , ").join(", ");
-                vinyl.lend = vinyl.lend.split(" , ").join(", ");
-                vinyl.note = vinyl.note.split(" , ").join(", ");
+            for (const i in vinyls) {
+                const vinyl = vinyls[i];
+                vinyl.title = vinyl.title.replace(/\s*,\s*/g, ', ');
+                vinyl.band = vinyl.band.replace(/\s*,\s*/g, ', ');
+                vinyl.genre = vinyl.genre.replace(/\s*,\s*/g, ', ');
+                vinyl.lend = vinyl.lend.replace(/\s*,\s*/g, ', ');
+                vinyl.note = vinyl.note.replace(/\s*,\s*/g, ', ');
             }
 
-            let worksheetVinyls = workbook.addWorksheet('Vinyls');
+            const worksheetVinyls = workbook.addWorksheet('Vinyls');
 
             worksheetVinyls.columns = [
                 { header: 'Titel', key: 'title', width: 50 },
@@ -1672,7 +1665,7 @@ module.exports = function () {
 
             // Return the excel file
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            res.setHeader("Content-Disposition", "attachment; filename=" + filename);
+            res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
             await workbook.xlsx.write(res);
             res.end();
         } catch (err) {
@@ -1689,8 +1682,8 @@ module.exports = function () {
             // Bluray data
             ////////////////////////////////////////////
 
-            let headerDataBluray = ['Titel', 'Schauspieler', 'Regisseur', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
-            let bodyDataBluray = [];
+            const headerDataBluray = ['Titel', 'Schauspieler', 'Regisseur', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
+            const bodyDataBluray = [];
 
             // Getting all BluRay info from this user
             let sql = nws`
@@ -1702,21 +1695,21 @@ module.exports = function () {
             let blurays = await mysql.query(sql);
             blurays = blurays[0];
 
-            for (let i in blurays) {
+            for (const i in blurays) {
                 const bluray = blurays[i];
                 bodyDataBluray.push([
-                    bluray.title.split(" , ").join(", "),
-                    bluray.actor.split(" , ").join(", "),
-                    bluray.director.split(" , ").join(", "),
-                    bluray.genre.split(" , ").join(", "),
+                    bluray.title.replace(/\s*,\s*/g, ', '),
+                    bluray.actor.replace(/\s*,\s*/g, ', '),
+                    bluray.director.replace(/\s*,\s*/g, ', '),
+                    bluray.genre.replace(/\s*,\s*/g, ', '),
                     bluray.length,
                     bluray.year,
-                    bluray.lend.split(" , ").join(", "),
-                    bluray.note.split(" , ").join(", ")
+                    bluray.lend.replace(/\s*,\s*/g, ', '),
+                    bluray.note.replace(/\s*,\s*/g, ', ')
                 ]);
             }
 
-            let dataBluray = {
+            const dataBluray = {
                 head: headerDataBluray,
                 body: bodyDataBluray
             };
@@ -1725,8 +1718,8 @@ module.exports = function () {
             // DVD data
             ////////////////////////////////////////////
 
-            let headerDataDvd = ['Titel', 'Schauspieler', 'Regisseur', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
-            let bodyDataDvd = [];
+            const headerDataDvd = ['Titel', 'Schauspieler', 'Regisseur', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
+            const bodyDataDvd = [];
 
             // Getting all DVD info from this user
             sql = nws`
@@ -1738,21 +1731,21 @@ module.exports = function () {
             let dvds = await mysql.query(sql);
             dvds = dvds[0];
 
-            for (let i in dvds) {
+            for (const i in dvds) {
                 const dvd = dvds[i];
                 bodyDataDvd.push([
-                    dvd.title.split(" , ").join(", "),
-                    dvd.actor.split(" , ").join(", "),
-                    dvd.director.split(" , ").join(", "),
-                    dvd.genre.split(" , ").join(", "),
+                    dvd.title.replace(/\s*,\s*/g, ', '),
+                    dvd.actor.replace(/\s*,\s*/g, ', '),
+                    dvd.director.replace(/\s*,\s*/g, ', '),
+                    dvd.genre.replace(/\s*,\s*/g, ', '),
                     dvd.length,
                     dvd.year,
-                    dvd.lend.split(" , ").join(", "),
-                    dvd.note.split(" , ").join(", ")
+                    dvd.lend.replace(/\s*,\s*/g, ', '),
+                    dvd.note.replace(/\s*,\s*/g, ', ')
                 ]);
             }
 
-            let dataDvd = {
+            const dataDvd = {
                 head: headerDataDvd,
                 body: bodyDataDvd
             };
@@ -1761,8 +1754,8 @@ module.exports = function () {
             // CD data
             ////////////////////////////////////////////
 
-            let headerDataCd = ['Titel', 'Künstler/Band', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
-            let bodyDataCd = [];
+            const headerDataCd = ['Titel', 'Künstler/Band', 'Genre', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
+            const bodyDataCd = [];
 
             // Getting all Vinyl info from this user
             sql = nws`
@@ -1774,20 +1767,20 @@ module.exports = function () {
             let cds = await mysql.query(sql);
             cds = cds[0];
 
-            for (let i in cds) {
+            for (const i in cds) {
                 const cd = cds[i];
                 bodyDataCd.push([
-                    cd.title.split(" , ").join(", "),
-                    cd.band.split(" , ").join(", "),
-                    cd.genre.split(" , ").join(", "),
+                    cd.title.replace(/\s*,\s*/g, ', '),
+                    cd.band.replace(/\s*,\s*/g, ', '),
+                    cd.genre.replace(/\s*,\s*/g, ', '),
                     cd.length,
                     cd.year,
-                    cd.lend.split(" , ").join(", "),
-                    cd.note.split(" , ").join(", ")
+                    cd.lend.replace(/\s*,\s*/g, ', '),
+                    cd.note.replace(/\s*,\s*/g, ', ')
                 ]);
             }
 
-            let dataCd = {
+            const dataCd = {
                 head: headerDataCd,
                 body: bodyDataCd
             };
@@ -1796,8 +1789,8 @@ module.exports = function () {
             // Vinyl data
             ////////////////////////////////////////////
 
-            let headerDataVinyl = ['Titel', 'Künstler/Band', 'Genre', 'Typ', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
-            let bodyDataVinyl = [];
+            const headerDataVinyl = ['Titel', 'Künstler/Band', 'Genre', 'Typ', 'Länge (min)', 'Erscheinungsjahr', 'Verliehen an', 'Notiz'];
+            const bodyDataVinyl = [];
 
             // Getting all Vinyl info from this user
             sql = nws`
@@ -1809,26 +1802,26 @@ module.exports = function () {
             let vinyls = await mysql.query(sql);
             vinyls = vinyls[0];
 
-            for (let i in vinyls) {
+            for (const i in vinyls) {
                 const vinyl = vinyls[i];
                 bodyDataVinyl.push([
-                    vinyl.title.split(" , ").join(", "),
-                    vinyl.band.split(" , ").join(", "),
-                    vinyl.genre.split(" , ").join(", "),
-                    vinyl.type.split(" , ").join(", "),
+                    vinyl.title.replace(/\s*,\s*/g, ', '),
+                    vinyl.band.replace(/\s*,\s*/g, ', '),
+                    vinyl.genre.replace(/\s*,\s*/g, ', '),
+                    vinyl.type.replace(/\s*,\s*/g, ', '),
                     vinyl.length,
                     vinyl.year,
-                    vinyl.lend.split(" , ").join(", "),
-                    vinyl.note.split(" , ").join(", ")
+                    vinyl.lend.replace(/\s*,\s*/g, ', '),
+                    vinyl.note.replace(/\s*,\s*/g, ', ')
                 ]);
             }
 
-            let dataVinyl = {
+            const dataVinyl = {
                 head: headerDataVinyl,
                 body: bodyDataVinyl
             };
 
-            let data = {
+            const data = {
                 bluray: dataBluray,
                 dvd: dataDvd,
                 cd: dataCd,

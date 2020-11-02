@@ -1,5 +1,6 @@
-require('dotenv').config({ path: '/var/www/vinylbank.de/.env' }); // Linux 
-// require('dotenv').config({ path: 'D:/OneDrive/Documents/Programming/vinylbank.de/.env' }); // Windows
+global.devMode = false;
+
+require('dotenv').config({ path: devMode ? 'D:/OneDrive/Documents/Programming/vinylbank.de/.env' : '/var/www/vinylbank.de/.env' });
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -9,10 +10,13 @@ const mysql = require('./database/mysql');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
+////////////////////////////////////////////
 // Global functions
+////////////////////////////////////////////
 const functions = require('./public/js/functions');
 const isLoggedIn = functions.isLoggedIn;
 const setReqUser = functions.setReqUser;
+const nws = functions.nws;
 
 ////////////////////////////////////////////
 // Express
@@ -24,7 +28,7 @@ app.use(session({
     },
     saveUninitialized: false,
     resave: false,
-    name: 'express-crud'
+    name: 'vinylbank.de'
 }));
 
 app.set('view engine', 'ejs');
@@ -37,9 +41,8 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 ////////////////////////////////////////////
-// Middleware Routes
+// Middleware routes
 ////////////////////////////////////////////
-
 const authRoute = require('./routes/auth')();
 const submitRoute = require('./routes/submit')();
 
@@ -82,7 +85,7 @@ app.get('*', function (req, res) {
 // General
 ////////////////////////////////////////////
 function getRandomGreeting(username) {
-    let i = Math.floor(Math.random() * Math.floor(10)); // 0, 1, 2, ..., 9
+    const i = Math.floor(Math.random() * Math.floor(10)); // 0, 1, 2, ..., 9
     switch (i) {
         case 0:
             return `Hallo ${username}!`;
@@ -91,7 +94,7 @@ function getRandomGreeting(username) {
         case 2:
             return `Sei gegrüßt, ${username}!`;
         case 3:
-            let hg = new Date().getHours();
+            const hg = new Date().getHours();
             if (hg >= 6 && hg < 12) return `Guten Morgen ${username}!`;
             else if (hg >= 12 && hg < 18) return `Guten Tag ${username}!`;
             else if (hg >= 18 && hg < 22) return `Guten Abend ${username}!`;
@@ -103,7 +106,7 @@ function getRandomGreeting(username) {
         case 6:
             return `Servus ${username}!`;
         case 7:
-            let hd = new Date().getHours();
+            const hd = new Date().getHours();
             if (hd >= 6 && hd < 12) return `Goedemorgen ${username}!`;
             else if (hd >= 12 && hd < 18) return `Goedendag ${username}!`;
             else if (hd >= 18 && hd < 22) return `Goedenavond ${username}!`;
@@ -127,83 +130,96 @@ async function renderHome(req, res) {
 
 async function renderAll(req, res) {
     try {
-        let userId = req.user.id;
+        const userId = req.user.id;
 
         // Ordering?
-        let orderBy = req.query.orderby;
-        let direction = req.query.direction;
+        const { orderby, direction } = req.query;
 
         // BluRay
-        let sql = "SELECT * " +
-            "FROM bluray " +
-            "WHERE user_id=" + mysql.escape(userId);
+        let sql = nws`
+            SELECT *
+            FROM bluray
+            WHERE user_id=${mysql.escape(userId)}
+        `;
 
-        if ((orderBy !== undefined && direction !== undefined) &&
-            (orderBy === 'title' || orderBy === 'genre' || orderBy === 'length') &&
+        if ((orderby !== undefined && direction !== undefined) &&
+            (orderby === 'title' || orderby === 'genre' || orderby === 'length') &&
             (direction === 'asc') || direction === 'desc') {
-            sql += " " +
-                "ORDER BY " + orderBy + " " + direction.toUpperCase();
+            sql += nws`
+                ORDER BY ${orderby} ${direction.toUpperCase()}
+            `;
         }
 
         let blurays = await mysql.query(sql);
         blurays = blurays[0];
 
         // DVD
-        sql = "SELECT * " +
-            "FROM dvd " +
-            "WHERE user_id=" + mysql.escape(userId);
+        sql = nws`
+            SELECT *
+            FROM dvd
+            WHERE user_id=${mysql.escape(userId)}
+        `;
 
-        if ((orderBy !== undefined && direction !== undefined) &&
-            (orderBy === 'title' || orderBy === 'genre' || orderBy === 'length') &&
+        if ((orderby !== undefined && direction !== undefined) &&
+            (orderby === 'title' || orderby === 'genre' || orderby === 'length') &&
             (direction === 'asc') || direction === 'desc') {
-            sql += " " +
-                "ORDER BY " + orderBy + " " + direction.toUpperCase();
+            sql += nws`
+                ORDER BY ${orderby} ${direction.toUpperCase()}
+            `;
         }
 
         let dvds = await mysql.query(sql);
         dvds = dvds[0];
 
         // CD
-        sql = "SELECT * " +
-            "FROM cd " +
-            "WHERE user_id=" + mysql.escape(userId);
+        sql = nws`
+            SELECT *
+            FROM cd
+            WHERE user_id=${mysql.escape(userId)}
+        `;
 
-        if ((orderBy !== undefined && direction !== undefined) &&
-            (orderBy === 'title' || orderBy === 'band' || orderBy === 'genre') &&
+        if ((orderby !== undefined && direction !== undefined) &&
+            (orderby === 'title' || orderby === 'band' || orderby === 'genre') &&
             (direction === 'asc') || direction === 'desc') {
-            sql += " " +
-                "ORDER BY " + orderBy + " " + direction.toUpperCase();
+            sql += nws`
+                ORDER BY ${orderby} ${direction.toUpperCase()}
+            `;
         }
 
         let cds = await mysql.query(sql);
         cds = cds[0];
 
         // Vinyl
-        sql = "SELECT * " +
-            "FROM vinyl " +
-            "WHERE user_id=" + mysql.escape(userId);
+        sql = nws`
+            SELECT *
+            FROM vinyl
+            WHERE user_id=${mysql.escape(userId)}
+        `;
 
-        if ((orderBy !== undefined && direction !== undefined) &&
-            (orderBy === 'title' || orderBy === 'band' || orderBy === 'genre') &&
+        if ((orderby !== undefined && direction !== undefined) &&
+            (orderby === 'title' || orderby === 'band' || orderby === 'genre') &&
             (direction === 'asc') || direction === 'desc') {
-            sql += " " +
-                "ORDER BY " + orderBy + " " + direction.toUpperCase();
+            sql += nws`
+                ORDER BY ${orderby} ${direction.toUpperCase()}
+            `;
         }
 
         let vinyls = await mysql.query(sql);
         vinyls = vinyls[0];
 
         // Username
-        sql = "SELECT username " +
-            "FROM users " +
-            "WHERE id=" + mysql.escape(userId);
+        sql = nws`
+            SELECT username
+            FROM users
+            WHERE id=${mysql.escape(userId)}
+        `;
 
         let username = await mysql.query(sql);
         username = username[0][0].username;
 
-        let greeting = getRandomGreeting(username);
+        const greeting = getRandomGreeting(username);
 
-        res.render('all', { req, blurays, dvds, cds, vinyls, orderBy, direction, greeting });
+        res.render('all', { req, blurays, dvds, cds, vinyls, orderby, direction, greeting });
     } catch (err) {
         console.error(err);
         res.render('500', { req });
@@ -212,27 +228,29 @@ async function renderAll(req, res) {
 
 async function renderBluRay(req, res) {
     try {
-        let userId = req.user.id;
+        const userId = req.user.id;
 
-        let sql = "SELECT * " +
-            "FROM bluray " +
-            "WHERE user_id=" + mysql.escape(userId);
+        let sql = nws`
+            SELECT *
+            FROM bluray
+            WHERE user_id=${mysql.escape(userId)}
+        `;
 
         // Ordering?
-        let orderBy = req.query.orderby;
-        let direction = req.query.direction;
+        const { orderby, direction } = req.query;
 
-        if ((orderBy !== undefined && direction !== undefined) &&
-            (orderBy === 'title' || orderBy === 'director' || orderBy === 'genre' || orderBy === 'length') &&
+        if ((orderby !== undefined && direction !== undefined) &&
+            (orderby === 'title' || orderby === 'director' || orderby === 'genre' || orderby === 'length') &&
             (direction === 'asc') || direction === 'desc') {
-            sql += " " +
-                "ORDER BY " + orderBy + " " + direction.toUpperCase();
+            sql += nws`
+                ORDER BY ${orderby} ${direction.toUpperCase()}
+            `;
         }
 
         let blurays = await mysql.query(sql);
         blurays = blurays[0];
 
-        res.render('bluray', { req, blurays, orderBy, direction });
+        res.render('bluray', { req, blurays, orderby, direction });
     } catch (err) {
         console.error(err);
         res.render('500', { req });
@@ -241,27 +259,29 @@ async function renderBluRay(req, res) {
 
 async function renderDvd(req, res) {
     try {
-        let userId = req.user.id;
+        const userId = req.user.id;
 
-        let sql = "SELECT * " +
-            "FROM dvd " +
-            "WHERE user_id=" + mysql.escape(userId);
+        let sql = nws`
+            SELECT *
+            FROM dvd
+            WHERE user_id=${mysql.escape(userId)}
+        `;
 
         // Ordering?
-        let orderBy = req.query.orderby;
-        let direction = req.query.direction;
+        const { orderby, direction } = req.query;
 
-        if ((orderBy !== undefined && direction !== undefined) &&
-            (orderBy === 'title' || orderBy === 'director' || orderBy === 'genre' || orderBy === 'length') &&
+        if ((orderby !== undefined && direction !== undefined) &&
+            (orderby === 'title' || orderby === 'director' || orderby === 'genre' || orderby === 'length') &&
             (direction === 'asc') || direction === 'desc') {
-            sql += " " +
-                "ORDER BY " + orderBy + " " + direction.toUpperCase();
+            sql += nws`
+                ORDER BY ${orderby} ${direction.toUpperCase()}
+            `;
         }
 
         let dvds = await mysql.query(sql);
         dvds = dvds[0];
 
-        res.render('dvd', { req, dvds, orderBy, direction });
+        res.render('dvd', { req, dvds, orderby, direction });
     } catch (err) {
         console.error(err);
         res.render('500', { req });
@@ -270,27 +290,28 @@ async function renderDvd(req, res) {
 
 async function renderCd(req, res) {
     try {
-        let userId = req.user.id;
+        const userId = req.user.id;
 
-        let sql = "SELECT * " +
-            "FROM cd " +
-            "WHERE user_id=" + mysql.escape(userId);
+        let sql = nws`SELECT *
+            FROM cd
+            WHERE user_id=${mysql.escape(userId)}
+        `;
 
         // Ordering?
-        let orderBy = req.query.orderby;
-        let direction = req.query.direction;
+        const { orderby, direction } = req.query;
 
-        if ((orderBy !== undefined && direction !== undefined) &&
-            (orderBy === 'title' || orderBy === 'band' || orderBy === 'genre') &&
+        if ((orderby !== undefined && direction !== undefined) &&
+            (orderby === 'title' || orderby === 'band' || orderby === 'genre') &&
             (direction === 'asc') || direction === 'desc') {
-            sql += " " +
-                "ORDER BY " + orderBy + " " + direction.toUpperCase();
+            sql += nws`
+                ORDER BY ${orderby} ${direction.toUpperCase()}
+            `;
         }
 
         let cds = await mysql.query(sql);
         cds = cds[0];
 
-        res.render('cd', { req, cds, orderBy, direction });
+        res.render('cd', { req, cds, orderby, direction });
     } catch (err) {
         console.error(err);
         res.render('500', { req });
@@ -299,27 +320,28 @@ async function renderCd(req, res) {
 
 async function renderVinyl(req, res) {
     try {
-        let userId = req.user.id;
+        const userId = req.user.id;
 
-        let sql = "SELECT * " +
-            "FROM vinyl " +
-            "WHERE user_id=" + mysql.escape(userId);
+        let sql = nws`SELECT *
+            FROM vinyl
+            WHERE user_id=${mysql.escape(userId)}
+        `;
 
         // Ordering?
-        let orderBy = req.query.orderby;
-        let direction = req.query.direction;
+        const { orderby, direction } = req.query;
 
-        if ((orderBy !== undefined && direction !== undefined) &&
-            (orderBy === 'title' || orderBy === 'band' || orderBy === 'genre') &&
+        if ((orderby !== undefined && direction !== undefined) &&
+            (orderby === 'title' || orderby === 'band' || orderby === 'genre') &&
             (direction === 'asc') || direction === 'desc') {
-            sql += " " +
-                "ORDER BY " + orderBy + " " + direction.toUpperCase();
+            sql += nws`
+                ORDER BY ${orderby} ${direction.toUpperCase()}
+            `;
         }
 
         let vinyls = await mysql.query(sql);
         vinyls = vinyls[0];
 
-        res.render('vinyl', { req, vinyls, orderBy, direction });
+        res.render('vinyl', { req, vinyls, orderby, direction });
     } catch (err) {
         console.error(err);
         res.render('500', { req });

@@ -1,5 +1,5 @@
-require('dotenv').config();
-var mysql = require('mysql2');
+require('dotenv').config({ path: devMode ? 'D:/OneDrive/Documents/Programming/vinylbank.de/.env' : '/var/www/vinylbank.de/.env' });
+const mysql = require('mysql2');
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
