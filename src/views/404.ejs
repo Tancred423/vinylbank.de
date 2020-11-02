@@ -1,0 +1,23 @@
+<%- include('partials/header_start') -%>
+<%- include('partials/titles/title_bluray') -%>
+<%- include('partials/header_end') -%>
+<% if (req.user) { %>
+<%- include('partials/nav') -%>
+<% } else { %>
+<%- include('partials/nav-logged-out') -%>
+<% } %>
+
+<div class="container">
+    <div id="error-404-500">
+        <h1>404</h1>
+        <p>Seite nicht gefunden oder keine Zugriffsberechtigung.</p>
+        <a href="/" class="btn" id="error-btn">Zurück zur Startseite</a>
+    </div>
+</div>
+
+<!-- Modals -->
+<div id="modals"></div>
+</main>
+</body>
+
+<%- include('partials/footer') -%>

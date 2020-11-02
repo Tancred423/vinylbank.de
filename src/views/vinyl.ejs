@@ -1,0 +1,173 @@
+<%- include('partials/header_start') -%>
+<%- include('partials/titles/title_vinyl') -%>
+<%- include('partials/header_end') -%>
+<%- include('partials/nav') -%>
+
+<div class="container">
+    <div class="buttons">
+        <div class="btn-left">
+            <button id="btn-delete" class="btn red margin" disabled><i class="fas fa-trash-alt"></i> Löschen</button>
+            <button id="btn-create" class="btn green margin"><i class="fas fa-plus-circle"></i> Erstellen</button>
+        </div>
+        <div id="pagination-wrapper" class="margin btn-pag">
+            <div id="pagination"></div>
+        </div>
+        <div class="btn-right right">
+            <button id="btn-excel" class="btn margin" onclick="downloadExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            <button id="btn-pdf" class="btn margin" onclick="downloadPdf()"><i class="fas fa-file-pdf"></i> PDF</button>
+        </div>
+    </div>
+
+    <div id="data-table-header">
+        <div class="checkbox">
+            <label class="pure-material-checkbox">
+                <input id="checkbox-header" type="checkbox">
+                <span></span>
+            </label>
+        </div>
+
+        <% if (orderBy === 'title' && direction === 'asc') { %>
+        <a href="/vinyl?orderby=title&direction=desc" class="column-1">Titel <i class="fas fa-sort-alpha-down"></i></a>
+        <% } else if (orderBy == 'title' && direction == 'desc') { %>
+        <a href="/vinyl?orderby=title&direction=asc" class="column-1">Titel <i class="fas fa-sort-alpha-up"></i></a>
+        <% } else { %>
+        <a href="/vinyl?orderby=title&direction=asc" class="column-1">Titel</a>
+        <% } %>
+
+        <% if (orderBy === 'band' && direction === 'asc') { %>
+        <a href="/vinyl?orderby=band&direction=desc" class="column-2">Künstler/Band <i class="fas fa-sort-numeric-down"></i></a>
+        <% } else if (orderBy == 'band' && direction == 'desc') { %>
+        <a href="/vinyl?orderby=band&direction=asc" class="column-2">Künstler/Band <i class="fas fa-sort-numeric-up"></i></a>
+        <% } else { %>
+        <a href="/vinyl?orderby=band&direction=asc" class="column-2">Künstler/Band</a>
+        <% } %>
+
+        <% if (orderBy === 'genre' && direction === 'asc') { %>
+        <a href="/vinyl?orderby=genre&direction=desc" class="column-3">Genre <i class="fas fa-sort-alpha-down"></i></a>
+        <% } else if (orderBy == 'genre' && direction == 'desc') { %>
+        <a href="/vinyl?orderby=genre&direction=asc" class="column-3">Genre <i class="fas fa-sort-alpha-up"></i></a>
+        <% } else { %>
+        <a href="/vinyl?orderby=genre&direction=asc" class="column-3">Genre</a>
+        <% } %>
+    </div>
+
+    <div id="data-table-content">
+        <% if (vinyls.length > 0) { %>
+        <%      vinyls.forEach(vinyl => { %>
+        <div class="data-table-row" id="row_<%= vinyl.id %>">
+            <div class="checkbox">
+                <label class="pure-material-checkbox">
+                    <input class="checkbox-row" type="checkbox">
+                    <span></span>
+                </label>
+            </div>
+            <div class="column-1"><%= vinyl.title %></div>
+
+            <div class="column-2">
+                <% let bands = vinyl.band.split(','); %>
+                <% bands.forEach(bandEntry => { %>
+                <%      let band = bandEntry.trim(); %>
+                <span class="actor"><%= band %></span>
+                <% }); %>
+            </div>
+
+            <div class="column-3">
+                <% let genres = vinyl.genre.split(','); %>
+                <% genres.forEach(genreEntry => { %>
+                <%      let genre = genreEntry.trim(); %>
+                <span class="actor"><%= genre %></span>
+                <% }); %>
+            </div>
+
+            <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit('<%= vinyl.id %>', '<%= vinyl.title %>', '<%= vinyl.band %>', '<%= vinyl.genre %>', '<%= vinyl.type %>', '<%= vinyl.year %>', '<%= vinyl.lend %>', '<%= vinyl.length %>', '<%= vinyl.note %>')"><i class="fas fa-edit"></i></button></div>
+
+            <div class="column-id hide"><%= vinyl.id %></div>
+        </div>
+        <div class="data-table-sub-row hide" id="sub_row_<%= vinyl.id %>">
+            <div class="sub-row-entry">
+                <span class="sub-title">
+                    Künstler/Band
+                </span>
+                <span class="sub-content">
+                    <% bands.forEach(bandEntry => { %>
+                    <%      let band = bandEntry.trim(); %>
+                    <span class="actor"><%= band %></span>
+                    <% }); %>
+                </span>
+            </div>
+
+            <div class="sub-row-entry">
+                <span class="sub-title">
+                    Genre
+                </span>
+                <span class="sub-content">
+                    <% genres.forEach(genreEntry => { %>
+                    <%      let genre = genreEntry.trim(); %>
+                    <span class="actor"><%= genre %></span>
+                    <% }); %>
+                </span>
+            </div>
+
+            <div class="sub-row-entry">
+                <span class="sub-title">
+                    Länge
+                </span>
+                <span class="sub-content">
+                    <%= vinyl.length %> min
+                </span>
+            </div>
+
+            <div class="sub-row-entry">
+                <span class="sub-title">
+                    Typ
+                </span>
+                <span class="sub-content">
+                    <%= vinyl.type %>
+                </span>
+            </div>
+
+            <div class="sub-row-entry">
+                <span class="sub-title">
+                    Erscheinungsjahr
+                </span>
+                <span class="sub-content">
+                    <%= vinyl.year %>
+                </span>
+            </div>
+
+            <div class="sub-row-entry">
+                <span class="sub-title">
+                    Verliehen an
+                </span>
+                <span class="sub-content">
+                    <%= vinyl.lend %>
+                </span>
+            </div>
+
+            <div class="sub-row-entry">
+                <span class="sub-title">
+                    Notiz
+                </span>
+                <span class="sub-content">
+                    <%= vinyl.note %>
+                </span>
+            </div>
+        </div>
+        <%      }); %>
+        <% } else { %>
+        <div class="no-entries">Keine Einträge</div>
+        <% } %>
+    </div>
+</div>
+
+
+<!-- Modals -->
+<div id="modals"></div>
+</main>
+</body>
+
+<!-- JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
+<script src="/js/vinyl.js"></script>
+
+<%- include('partials/footer') -%>

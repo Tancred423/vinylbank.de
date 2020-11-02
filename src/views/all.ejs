@@ -1,0 +1,870 @@
+<%- include('partials/header_start') -%>
+<%- include('partials/titles/title_all') -%>
+<%- include('partials/header_end') -%>
+<%- include('partials/nav') -%>
+
+<div class="container">
+    <div class="buttons-all-head">
+        <div class="btn-left">
+            <span> <%= greeting %></span>
+        </div>
+        <div class="btn-right right">
+            <button id="btn-excel" class="btn margin" onclick="downloadExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            <button id="btn-pdf" class="btn margin" onclick="downloadPdf()"><i class="fas fa-file-pdf"></i> PDF</button>
+        </div>
+    </div>
+
+    <div id="bluray">
+        <div class="buttons-all">
+            <div class="btn-left margin-left">
+                <button id="btn-delete-bluray" class="btn red margin" disabled><i class="fas fa-trash-alt"></i> Löschen</button>
+                <button id="btn-create-bluray" class="btn green margin"><i class="fas fa-plus-circle"></i> Erstellen</button>
+            </div>
+            <div class="margin btn-pag pag-all">
+                <h1>BluRay</h1>
+                <div id="pagination-bluray"></div>
+            </div>
+        </div>
+        <div id="data-table-header">
+            <div class="checkbox">
+                <label class="pure-material-checkbox">
+                    <input id="checkbox-header-bluray" type="checkbox">
+                    <span></span>
+                </label>
+            </div>
+
+            <% if (orderBy === 'title' && direction === 'asc') { %>
+            <a href="/all?orderby=title&direction=desc" class="column-1">Titel <i class="fas fa-sort-alpha-down"></i></a>
+            <% } else if (orderBy == 'title' && direction == 'desc') { %>
+            <a href="/all?orderby=title&direction=asc" class="column-1">Titel <i class="fas fa-sort-alpha-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=title&direction=asc" class="column-1">Titel</a>
+            <% } %>
+
+            <% if (orderBy === 'genre' && direction === 'asc') { %>
+            <a href="/all?orderby=genre&direction=desc" class="column-2">Genre <i class="fas fa-sort-alpha-down"></i></a>
+            <% } else if (orderBy == 'genre' && direction == 'desc') { %>
+            <a href="/all?orderby=genre&direction=asc" class="column-2">Genre <i class="fas fa-sort-alpha-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=genre&direction=asc" class="column-2">Genre</a>
+            <% } %>
+
+            <% if (orderBy === 'length' && direction === 'asc') { %>
+            <a href="/all?orderby=length&direction=desc" class="column-3">Länge <i class="fas fa-sort-numeric-down"></i></a>
+            <% } else if (orderBy == 'length' && direction == 'desc') { %>
+            <a href="/all?orderby=length&direction=asc" class="column-3">Länge <i class="fas fa-sort-numeric-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=length&direction=asc" class="column-3">Länge</a>
+            <% } %>
+        </div>
+
+        <div id="data-table-content-bluray">
+            <% if (blurays) { %>
+            <%      blurays.forEach(bluray => { %>
+            <div class="data-table-row-bluray" id="row_<%= bluray.id %>">
+                <div class="checkbox">
+                    <label class="pure-material-checkbox">
+                        <input class="checkbox-row-bluray" type="checkbox">
+                        <span></span>
+                    </label>
+                </div>
+                <div class="column-1"><%= bluray.title %></div>
+                <div class="column-2">
+                    <% let genres = bluray.genre.split(','); %>
+                    <% genres.forEach(genreEntry => { %>
+                    <%      let genre = genreEntry.trim(); %>
+                    <span class="actor"><%= genre %></span>
+                    <% }); %>
+                </div>
+                <div class="column-3"><%= bluray.length %> min</div>
+
+                <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit_bluray('<%= bluray.id %>', '<%= bluray.title %>', '<%= bluray.actor %>', '<%= bluray.director %>', '<%= bluray.genre %>', '<%= bluray.year %>', '<%= bluray.lend %>', '<%= bluray.length %>', '<%= bluray.note %>')"><i class="fas fa-edit"></i></button></div>
+
+                <div class="column-id hide"><%= bluray.id %></div>
+            </div>
+            <div class="data-table-sub-row hide" id="bluray_sub_row_<%= bluray.id %>">
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Genre
+                    </span>
+                    <span class="sub-content">
+                        <% genres.forEach(genreEntry => { %>
+                        <%      let genre = genreEntry.trim(); %>
+                        <span class="actor"><%= genre %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Schauspieler
+                    </span>
+                    <span class="sub-content">
+                        <% let actors = bluray.actor.split(','); %>
+                        <% actors.forEach(actorEntry => { %>
+                        <%      let actor = actorEntry.trim(); %>
+                        <span class="actor"><%= actor %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Regisseur
+                    </span>
+                    <span class="sub-content">
+                        <% let directors = bluray.director.split(','); %>
+                        <% directors.forEach(directorEntry => { %>
+                        <%      let director = directorEntry.trim(); %>
+                        <span class="actor"><%= director %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Länge
+                    </span>
+                    <span class="sub-content">
+                        <%= bluray.length %> min
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Erscheinungsjahr
+                    </span>
+                    <span class="sub-content">
+                        <%= bluray.year %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Verliehen an
+                    </span>
+                    <span class="sub-content">
+                        <%= bluray.lend %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Notiz
+                    </span>
+                    <span class="sub-content">
+                        <%= bluray.note %>
+                    </span>
+                </div>
+            </div>
+            <%      }); %>
+            <% } %>
+        </div>
+    </div>
+
+    <div id="dvd">
+        <div class="buttons-all">
+            <div class="btn-left margin-left">
+                <button id="btn-delete-dvd" class="btn red margin" disabled><i class="fas fa-trash-alt"></i> Löschen</button>
+                <button id="btn-create-dvd" class="btn green margin"><i class="fas fa-plus-circle"></i> Erstellen</button>
+            </div>
+            <div class="margin btn-pag pag-all">
+                <h1>DVD</h1>
+                <div id="pagination-dvd"></div>
+            </div>
+        </div>
+        <div id="data-table-header">
+            <div class="checkbox">
+                <label class="pure-material-checkbox">
+                    <input id="checkbox-header-dvd" type="checkbox">
+                    <span></span>
+                </label>
+            </div>
+
+            <% if (orderBy === 'title' && direction === 'asc') { %>
+            <a href="/all?orderby=title&direction=desc" class="column-1">Titel <i class="fas fa-sort-alpha-down"></i></a>
+            <% } else if (orderBy == 'title' && direction == 'desc') { %>
+            <a href="/all?orderby=title&direction=asc" class="column-1">Titel <i class="fas fa-sort-alpha-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=title&direction=asc" class="column-1">Titel</a>
+            <% } %>
+
+            <% if (orderBy === 'genre' && direction === 'asc') { %>
+            <a href="/all?orderby=genre&direction=desc" class="column-2">Genre <i class="fas fa-sort-alpha-down"></i></a>
+            <% } else if (orderBy == 'genre' && direction == 'desc') { %>
+            <a href="/all?orderby=genre&direction=asc" class="column-2">Genre <i class="fas fa-sort-alpha-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=genre&direction=asc" class="column-2">Genre</a>
+            <% } %>
+
+            <% if (orderBy === 'length' && direction === 'asc') { %>
+            <a href="/all?orderby=length&direction=desc" class="column-3">Länge <i class="fas fa-sort-numeric-down"></i></a>
+            <% } else if (orderBy == 'length' && direction == 'desc') { %>
+            <a href="/all?orderby=length&direction=asc" class="column-3">Länge <i class="fas fa-sort-numeric-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=length&direction=asc" class="column-3">Länge</a>
+            <% } %>
+        </div>
+        <div id="data-table-content-dvd">
+            <% if (dvds) { %>
+            <%      dvds.forEach(dvd => { %>
+            <div class="data-table-row-dvd" id="row_<%= dvd.id %>">
+                <div class="checkbox">
+                    <label class="pure-material-checkbox">
+                        <input class="checkbox-row-dvd" type="checkbox">
+                        <span></span>
+                    </label>
+                </div>
+                <div class="column-1"><%= dvd.title %></div>
+                <div class="column-2">
+                    <% let genres = dvd.genre.split(','); %>
+                    <% genres.forEach(genreEntry => { %>
+                    <%      let genre = genreEntry.trim(); %>
+                    <span class="actor"><%= genre %></span>
+                    <% }); %>
+                </div>
+                <div class="column-3"><%= dvd.length %> min</div>
+
+                <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit_dvd('<%= dvd.id %>', '<%= dvd.title %>', '<%= dvd.actor %>', '<%= dvd.director %>', '<%= dvd.genre %>', '<%= dvd.year %>', '<%= dvd.lend %>', '<%= dvd.length %>', '<%= dvd.note %>')"><i class="fas fa-edit"></i></button></div>
+
+                <div class="column-id hide"><%= dvd.id %></div>
+            </div>
+            <div class="data-table-sub-row hide" id="dvd_sub_row_<%= dvd.id %>">
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Genre
+                    </span>
+                    <span class="sub-content">
+                        <% genres.forEach(genreEntry => { %>
+                        <%      let genre = genreEntry.trim(); %>
+                        <span class="actor"><%= genre %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Schauspieler
+                    </span>
+                    <span class="sub-content">
+                        <% let actors = dvd.actor.split(','); %>
+                        <% actors.forEach(actorEntry => { %>
+                        <%      let actor = actorEntry.trim(); %>
+                        <span class="actor"><%= actor %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Regisseur
+                    </span>
+                    <span class="sub-content">
+                        <% let directors = dvd.director.split(','); %>
+                        <% directors.forEach(directorEntry => { %>
+                        <%      let director = directorEntry.trim(); %>
+                        <span class="actor"><%= director %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Länge
+                    </span>
+                    <span class="sub-content">
+                        <%= dvd.length %> min
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Erscheinungsjahr
+                    </span>
+                    <span class="sub-content">
+                        <%= dvd.year %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Verliehen an
+                    </span>
+                    <span class="sub-content">
+                        <%= dvd.lend %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Notiz
+                    </span>
+                    <span class="sub-content">
+                        <%= dvd.note %>
+                    </span>
+                </div>
+            </div>
+            <%      }); %>
+            <% } %>
+        </div>
+    </div>
+
+    <div id="cd">
+        <div class="buttons-all">
+            <div class="btn-left margin-left">
+                <button id="btn-delete-cd" class="btn red margin" disabled><i class="fas fa-trash-alt"></i> Löschen</button>
+                <button id="btn-create-cd" class="btn green margin"><i class="fas fa-plus-circle"></i> Erstellen</button>
+            </div>
+            <div class="margin btn-pag pag-all">
+                <h1>CD</h1>
+                <div id="pagination-cd"></div>
+            </div>
+        </div>
+        <div id="data-table-header">
+            <div class="checkbox">
+                <label class="pure-material-checkbox">
+                    <input id="checkbox-header-cd" type="checkbox">
+                    <span></span>
+                </label>
+            </div>
+
+            <% if (orderBy === 'title' && direction === 'asc') { %>
+            <a href="/all?orderby=title&direction=desc" class="column-1">Titel <i class="fas fa-sort-alpha-down"></i></a>
+            <% } else if (orderBy == 'title' && direction == 'desc') { %>
+            <a href="/all?orderby=title&direction=asc" class="column-1">Titel <i class="fas fa-sort-alpha-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=title&direction=asc" class="column-1">Titel</a>
+            <% } %>
+
+            <% if (orderBy === 'band' && direction === 'asc') { %>
+            <a href="/all?orderby=band&direction=desc" class="column-2">Künstler/Band <i class="fas fa-sort-numeric-down"></i></a>
+            <% } else if (orderBy == 'band' && direction == 'desc') { %>
+            <a href="/all?orderby=band&direction=asc" class="column-2">Künstler/Band <i class="fas fa-sort-numeric-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=band&direction=asc" class="column-2">Künstler/Band</a>
+            <% } %>
+
+            <% if (orderBy === 'genre' && direction === 'asc') { %>
+            <a href="/all?orderby=genre&direction=desc" class="column-3">Genre <i class="fas fa-sort-alpha-down"></i></a>
+            <% } else if (orderBy == 'genre' && direction == 'desc') { %>
+            <a href="/all?orderby=genre&direction=asc" class="column-3">Genre <i class="fas fa-sort-alpha-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=genre&direction=asc" class="column-3">Genre</a>
+            <% } %>
+        </div>
+
+        <div id="data-table-content-cd">
+            <% if (cds) { %>
+            <%      cds.forEach(cd => { %>
+            <div class="data-table-row-cd" id="row_<%= cd.id %>">
+                <div class="checkbox">
+                    <label class="pure-material-checkbox">
+                        <input class="checkbox-row-cd" type="checkbox">
+                        <span></span>
+                    </label>
+                </div>
+                <div class="column-1"><%= cd.title %></div>
+
+                <div class="column-2">
+                    <% let bands = cd.band.split(','); %>
+                    <% bands.forEach(bandEntry => { %>
+                    <%      let band = bandEntry.trim(); %>
+                    <span class="actor"><%= band %></span>
+                    <% }); %>
+                </div>
+
+                <div class="column-3">
+                    <% let genres = cd.genre.split(','); %>
+                    <% genres.forEach(genreEntry => { %>
+                    <%      let genre = genreEntry.trim(); %>
+                    <span class="actor"><%= genre %></span>
+                    <% }); %>
+                </div>
+
+                <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit_cd('<%= cd.id %>', '<%= cd.title %>', '<%= cd.band %>', '<%= cd.genre %>', '<%= cd.year %>', '<%= cd.lend %>', '<%= cd.length %>', '<%= cd.note %>')"><i class="fas fa-edit"></i></button></div>
+
+                <div class="column-id hide"><%= cd.id %></div>
+            </div>
+            <div class="data-table-sub-row hide" id="cd_sub_row_<%= cd.id %>">
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Künstler/Band
+                    </span>
+                    <span class="sub-content">
+                        <% bands.forEach(bandEntry => { %>
+                        <%      let band = bandEntry.trim(); %>
+                        <span class="actor"><%= band %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Genre
+                    </span>
+                    <span class="sub-content">
+                        <% genres.forEach(genreEntry => { %>
+                        <%      let genre = genreEntry.trim(); %>
+                        <span class="actor"><%= genre %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Länge
+                    </span>
+                    <span class="sub-content">
+                        <%= cd.length %> min
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Erscheinungsjahr
+                    </span>
+                    <span class="sub-content">
+                        <%= cd.year %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Verliehen an
+                    </span>
+                    <span class="sub-content">
+                        <%= cd.lend %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Notiz
+                    </span>
+                    <span class="sub-content">
+                        <%= cd.note %>
+                    </span>
+                </div>
+            </div>
+            <%      }); %>
+            <% } %>
+        </div>
+    </div>
+
+    <div id="vinyl">
+        <div class="buttons-all">
+            <div class="btn-left margin-left">
+                <button id="btn-delete-vinyl" class="btn red margin" disabled><i class="fas fa-trash-alt"></i> Löschen</button>
+                <button id="btn-create-vinyl" class="btn green margin"><i class="fas fa-plus-circle"></i> Erstellen</button>
+            </div>
+            <div class="margin btn-pag pag-all">
+                <h1>Vinyl</h1>
+                <div id="pagination-vinyl"></div>
+            </div>
+        </div>
+        <div id="data-table-header">
+            <div class="checkbox">
+                <label class="pure-material-checkbox">
+                    <input id="checkbox-header-vinyl" type="checkbox">
+                    <span></span>
+                </label>
+            </div>
+
+            <% if (orderBy === 'title' && direction === 'asc') { %>
+            <a href="/all?orderby=title&direction=desc" class="column-1">Titel <i class="fas fa-sort-alpha-down"></i></a>
+            <% } else if (orderBy == 'title' && direction == 'desc') { %>
+            <a href="/all?orderby=title&direction=asc" class="column-1">Titel <i class="fas fa-sort-alpha-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=title&direction=asc" class="column-1">Titel</a>
+            <% } %>
+
+            <% if (orderBy === 'band' && direction === 'asc') { %>
+            <a href="/all?orderby=band&direction=desc" class="column-2">Künstler/Band <i class="fas fa-sort-numeric-down"></i></a>
+            <% } else if (orderBy == 'band' && direction == 'desc') { %>
+            <a href="/all?orderby=band&direction=asc" class="column-2">Künstler/Band <i class="fas fa-sort-numeric-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=band&direction=asc" class="column-2">Künstler/Band</a>
+            <% } %>
+
+            <% if (orderBy === 'genre' && direction === 'asc') { %>
+            <a href="/all?orderby=genre&direction=desc" class="column-3">Genre <i class="fas fa-sort-alpha-down"></i></a>
+            <% } else if (orderBy == 'genre' && direction == 'desc') { %>
+            <a href="/all?orderby=genre&direction=asc" class="column-3">Genre <i class="fas fa-sort-alpha-up"></i></a>
+            <% } else { %>
+            <a href="/all?orderby=genre&direction=asc" class="column-3">Genre</a>
+            <% } %>
+        </div>
+
+        <div id="data-table-content-vinyl">
+            <% if (vinyls) { %>
+            <%      vinyls.forEach(vinyl => { %>
+            <div class="data-table-row-vinyl" id="row_<%= vinyl.id %>">
+                <div class="checkbox">
+                    <label class="pure-material-checkbox">
+                        <input class="checkbox-row-vinyl" type="checkbox">
+                        <span></span>
+                    </label>
+                </div>
+                <div class="column-1"><%= vinyl.title %></div>
+
+                <div class="column-2">
+                    <% let bands = vinyl.band.split(','); %>
+                    <% bands.forEach(bandEntry => { %>
+                    <%      let band = bandEntry.trim(); %>
+                    <span class="actor"><%= band %></span>
+                    <% }); %>
+                </div>
+
+                <div class="column-3">
+                    <% let genres = vinyl.genre.split(','); %>
+                    <% genres.forEach(genreEntry => { %>
+                    <%      let genre = genreEntry.trim(); %>
+                    <span class="actor"><%= genre %></span>
+                    <% }); %>
+                </div>
+
+                <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit_vinyl('<%= vinyl.id %>', '<%= vinyl.title %>', '<%= vinyl.band %>', '<%= vinyl.genre %>', '<%= vinyl.type %>', '<%= vinyl.year %>', '<%= vinyl.lend %>', '<%= vinyl.length %>', '<%= vinyl.note %>')"><i class="fas fa-edit"></i></button></div>
+
+                <div class="column-id hide"><%= vinyl.id %></div>
+            </div>
+            <div class="data-table-sub-row hide" id="vinyl_sub_row_<%= vinyl.id %>">
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Künstler/Band
+                    </span>
+                    <span class="sub-content">
+                        <% bands.forEach(bandEntry => { %>
+                        <%      let band = bandEntry.trim(); %>
+                        <span class="actor"><%= band %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Genre
+                    </span>
+                    <span class="sub-content">
+                        <% genres.forEach(genreEntry => { %>
+                        <%      let genre = genreEntry.trim(); %>
+                        <span class="actor"><%= genre %></span>
+                        <% }); %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Länge
+                    </span>
+                    <span class="sub-content">
+                        <%= vinyl.length %> min
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Typ
+                    </span>
+                    <span class="sub-content">
+                        <%= vinyl.type %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Erscheinungsjahr
+                    </span>
+                    <span class="sub-content">
+                        <%= vinyl.year %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Verliehen an
+                    </span>
+                    <span class="sub-content">
+                        <%= vinyl.lend %>
+                    </span>
+                </div>
+
+                <div class="sub-row-entry">
+                    <span class="sub-title">
+                        Notiz
+                    </span>
+                    <span class="sub-content">
+                        <%= vinyl.note %>
+                    </span>
+                </div>
+            </div>
+            <%      }); %>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modals -->
+<div id="modals"></div>
+</main>
+</body>
+
+<!-- JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
+<script src="/js/all.js"></script>
+
+<script>
+    /// Pagination
+    // BluRay
+    let bluRayItems = $('.data-table-row-bluray');
+    let bluRayItemsLength = bluRayItems.length;
+    let bluRayPerPage = 5;
+
+    bluRayItems.slice(bluRayPerPage).hide();
+
+    $("#pagination-bluray").pagination({
+        items: bluRayItemsLength,
+        itemsOnPage: bluRayPerPage,
+        displayedPages: 4,
+        edges: 1,
+        prevText: '<',
+        nextText: '>',
+        cssStyle: "light-theme",
+        hrefTextPrefix: '#page-bluray-',
+        onInit: function () {
+            let id = window.location.toString().split('#')[1]; // #page-2
+            if (id) {
+                if (id.split('-')[1] === 'bluray') {
+                    let page = id.split('-')[2]; // 2
+                    $("#pagination-bluray").pagination('selectPage', page);
+                }
+            }
+        },
+        onPageClick: function (pageNumber) {
+            let showFrom = bluRayPerPage * (pageNumber - 1);
+            let showTo = showFrom + bluRayPerPage;
+            bluRayItems.hide().slice(showFrom, showTo).show();
+        }
+    });
+
+    // DVD
+    let dvdItems = $('.data-table-row-dvd');
+    let dvdItemsLength = dvdItems.length;
+    let dvdPerPage = 5;
+
+    dvdItems.slice(dvdPerPage).hide();
+
+    $("#pagination-dvd").pagination({
+        items: dvdItemsLength,
+        itemsOnPage: dvdPerPage,
+        displayedPages: 4,
+        edges: 1,
+        prevText: '<',
+        nextText: '>',
+        cssStyle: "light-theme",
+        hrefTextPrefix: '#page-dvd-',
+        onInit: function () {
+            let id = window.location.toString().split('#')[1]; // #page-2
+            if (id) {
+                if (id.split('-')[1] === 'dvd') {
+                    let page = id.split('-')[2]; // 2
+                    $("#pagination-dvd").pagination('selectPage', page);
+                }
+            }
+        },
+        onPageClick: function (pageNumber) {
+            let showFrom = dvdPerPage * (pageNumber - 1);
+            let showTo = showFrom + dvdPerPage;
+            dvdItems.hide().slice(showFrom, showTo).show();
+        }
+    });
+
+    // CD
+    let cdItems = $('.data-table-row-cd');
+    let cdItemsLength = cdItems.length;
+    let cdPerPage = 5;
+
+    cdItems.slice(cdPerPage).hide();
+
+    $("#pagination-cd").pagination({
+        items: cdItemsLength,
+        itemsOnPage: cdPerPage,
+        displayedPages: 4,
+        edges: 1,
+        prevText: '<',
+        nextText: '>',
+        cssStyle: "light-theme",
+        hrefTextPrefix: '#page-cd-',
+        onInit: function () {
+            let id = window.location.toString().split('#')[1]; // #page-2
+            if (id) {
+                if (id.split('-')[1] === 'cd') {
+                    let page = id.split('-')[2]; // 2
+                    $("#pagination-cd").pagination('selectPage', page);
+                }
+            }
+        },
+        onPageClick: function (pageNumber) {
+            let showFrom = cdPerPage * (pageNumber - 1);
+            let showTo = showFrom + cdPerPage;
+            cdItems.hide().slice(showFrom, showTo).show();
+        }
+    });
+
+    // Vinyl
+    let vinylItems = $('.data-table-row-vinyl');
+    let vinylItemsLength = vinylItems.length;
+    let vinylPerPage = 5;
+
+    vinylItems.slice(vinylPerPage).hide();
+
+    $("#pagination-vinyl").pagination({
+        items: vinylItemsLength,
+        itemsOnPage: vinylPerPage,
+        displayedPages: 4,
+        edges: 1,
+        prevText: '<',
+        nextText: '>',
+        cssStyle: "light-theme",
+        hrefTextPrefix: '#page-vinyl-',
+        onInit: function () {
+            let id = window.location.toString().split('#')[1]; // #page-2
+            if (id) {
+                if (id.split('-')[1] === 'vinyl') {
+                    let page = id.split('-')[2]; // 2
+                    $("#pagination-vinyl").pagination('selectPage', page);
+                }
+            }
+        },
+        onPageClick: function (pageNumber) {
+            let showFrom = vinylPerPage * (pageNumber - 1);
+            let showTo = showFrom + vinylPerPage;
+            vinylItems.hide().slice(showFrom, showTo).show();
+        }
+    });
+</script>
+
+<script>
+    /// Checkboxes
+    // BluRay
+    $('#checkbox-header-bluray').change(function () {
+        if ($(this).is(':checked')) {
+            $('.checkbox-row-bluray').each(function (i) {
+                $(this).prop('checked', true);
+            });
+            if ($('.checkbox-row-bluray').length > 0)
+                $('#btn-delete-bluray').prop('disabled', false);
+        } else {
+            $('.checkbox-row-bluray').each(function (i) {
+                $(this).prop('checked', false);
+            });
+            if ($('.checkbox-row-bluray').length > 0)
+                $('#btn-delete-bluray').prop('disabled', true);
+        }
+    });
+
+    $('.checkbox-row-bluray').change(function () {
+        let allAreChecked = true;
+        let atLeastOneIsChecked = false;
+
+        $('.checkbox-row-bluray').each(function (i) {
+            if (!$(this).is(':checked')) allAreChecked = false;
+            else atLeastOneIsChecked = true;
+        });
+
+        $('#checkbox-header-bluray').prop('checked', allAreChecked);
+        $('#btn-delete-bluray').prop('disabled', !atLeastOneIsChecked);
+    });
+
+    // DVD
+    $('#checkbox-header-dvd').change(function () {
+        if ($(this).is(':checked')) {
+            $('.checkbox-row-dvd').each(function (i) {
+                $(this).prop('checked', true);
+            });
+            if ($('.checkbox-row-dvd').length > 0)
+                $('#btn-delete-dvd').prop('disabled', false);
+        } else {
+            $('.checkbox-row-dvd').each(function (i) {
+                $(this).prop('checked', false);
+            });
+            if ($('.checkbox-row-dvd').length > 0)
+                $('#btn-delete-dvd').prop('disabled', true);
+        }
+    });
+
+    $('.checkbox-row-dvd').change(function () {
+        let allAreChecked = true;
+        let atLeastOneIsChecked = false;
+
+        $('.checkbox-row-dvd').each(function (i) {
+            if (!$(this).is(':checked')) allAreChecked = false;
+            else atLeastOneIsChecked = true;
+        });
+
+        $('#checkbox-header-dvd').prop('checked', allAreChecked);
+        $('#btn-delete-dvd').prop('disabled', !atLeastOneIsChecked);
+    });
+
+    // CD
+    $('#checkbox-header-cd').change(function () {
+        if ($(this).is(':checked')) {
+            $('.checkbox-row-cd').each(function (i) {
+                $(this).prop('checked', true);
+            });
+            if ($('.checkbox-row-cd').length > 0)
+                $('#btn-delete-cd').prop('disabled', false);
+        } else {
+            $('.checkbox-row-cd').each(function (i) {
+                $(this).prop('checked', false);
+            });
+            if ($('.checkbox-row-cd').length > 0)
+                $('#btn-delete-cd').prop('disabled', true);
+        }
+    });
+
+    $('.checkbox-row-cd').change(function () {
+        let allAreChecked = true;
+        let atLeastOneIsChecked = false;
+
+        $('.checkbox-row-cd').each(function (i) {
+            if (!$(this).is(':checked')) allAreChecked = false;
+            else atLeastOneIsChecked = true;
+        });
+
+        $('#checkbox-header-cd').prop('checked', allAreChecked);
+        $('#btn-delete-cd').prop('disabled', !atLeastOneIsChecked);
+    });
+
+    // Vinyl
+    $('#checkbox-header-vinyl').change(function () {
+        if ($(this).is(':checked')) {
+            $('.checkbox-row-vinyl').each(function (i) {
+                $(this).prop('checked', true);
+            });
+            if ($('.checkbox-row-vinyl').length > 0)
+                $('#btn-delete-vinyl').prop('disabled', false);
+        } else {
+            $('.checkbox-row-vinyl').each(function (i) {
+                $(this).prop('checked', false);
+            });
+            if ($('.checkbox-row-vinyl').length > 0)
+                $('#btn-delete-vinyl').prop('disabled', true);
+        }
+    });
+
+    $('.checkbox-row-vinyl').change(function () {
+        let allAreChecked = true;
+        let atLeastOneIsChecked = false;
+
+        $('.checkbox-row-vinyl').each(function (i) {
+            if (!$(this).is(':checked')) allAreChecked = false;
+            else atLeastOneIsChecked = true;
+        });
+
+        $('#checkbox-header-vinyl').prop('checked', allAreChecked);
+        $('#btn-delete-vinyl').prop('disabled', !atLeastOneIsChecked);
+    });
+</script>
+
+<%- include('partials/footer') -%>

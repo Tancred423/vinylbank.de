@@ -1,0 +1,49 @@
+<%
+let path = req.originalUrl;
+let placeholder = 'Suche...';
+
+switch (path) {
+    case '/all':
+        placeholder = 'Suche BluRay, DVD, CD oder Vinyl...'        
+        break;
+
+    case '/bluray':
+        placeholder = 'Suche BluRay...';
+        break;
+
+    case '/dvd':
+        placeholder = 'Suche DVD...';
+        break;
+
+    case '/cd':
+        placeholder = 'Suche CD...';
+        break;
+
+    case '/vinyl':
+        placeholder = 'Suche Vinyl...';
+        break;
+}
+
+%>
+<nav>
+    <div class="nav-content container">
+        <a href="/" id="logo">VinylBank</a>
+        <div id="search-bar">
+            <form id="search-form" action="/submit/search">
+                <div class="search-input">
+                    <input type="text" name="search" id="search" placeholder="<%= placeholder %>">
+                </div>
+            </form>
+        </div>
+        <div id="login-btn" class="btn blue border margin-nav right" onclick="logout();">
+            <i class="fas fa-sign-in-alt"></i> Abmelden
+        </div>
+    </div>
+    <div id="sub-nav">
+        <a href="/all" id="btn-all" class="tab">Alle</a>
+        <a href="/bluray" id="btn-bluray" class="tab">BluRay</a>
+        <a href="/dvd" id="btn-dvd" class="tab">DVD</a>
+        <a href="/cd" id="btn-cd" class="tab">CD</a>
+        <a href="/vinyl" id="btn-vinyl" class="tab">Vinyl</a>
+    </div>
+</nav>
