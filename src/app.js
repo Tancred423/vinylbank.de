@@ -98,7 +98,7 @@ function getRandomGreeting(username) {
             if (hg >= 6 && hg < 12) return `Guten Morgen ${username}!`;
             else if (hg >= 12 && hg < 18) return `Guten Tag ${username}!`;
             else if (hg >= 18 && hg < 22) return `Guten Abend ${username}!`;
-            else if (hg >= 22 && hg < 6) return `Gute Nacht ${username}!`;
+            else return `Gute Nacht ${username}!`;
         case 4:
             return `Moin ${username}!`;
         case 5:
@@ -110,7 +110,7 @@ function getRandomGreeting(username) {
             if (hd >= 6 && hd < 12) return `Goedemorgen ${username}!`;
             else if (hd >= 12 && hd < 18) return `Goedendag ${username}!`;
             else if (hd >= 18 && hd < 22) return `Goedenavond ${username}!`;
-            else if (hd >= 22 && hd < 6) return `Goedenacht ${username}!`;
+            else return `Goedenacht ${username}!`;
         case 8:
             return `Grüß Gott, ${username}!`;
         case 9:
