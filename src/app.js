@@ -1,4 +1,4 @@
-global.devMode = false;
+global.devMode = true;
 
 require('dotenv').config({ path: devMode ? 'D:/OneDrive/Documents/Programming/vinylbank.de/.env' : '/var/www/vinylbank.de/.env' });
 const express = require('express');
