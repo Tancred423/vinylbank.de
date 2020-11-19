@@ -71,7 +71,7 @@
             </div>
             <div class="column-3"><%= bluray.length %> min</div>
 
-            <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit('<%= bluray.id %>', '<%= bluray.title %>', '<%= bluray.actor %>', '<%= bluray.director %>', '<%= bluray.genre %>', '<%= bluray.year %>', '<%= bluray.lend %>', '<%= bluray.length %>', '<%= bluray.note %>')"><i class="fas fa-edit"></i></button></div>
+            <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit('<%= bluray.id %>', '<%= bluray.title %>', '<%= bluray.actor.replace(/\n/g, '~n') %>', '<%= bluray.director.replace(/\n/g, '~n') %>', '<%= bluray.genre %>', '<%= bluray.year %>', '<%= bluray.lend %>', '<%= bluray.length %>', '<%= bluray.note.replace(/\n/g, '~n') %>')"><i class="fas fa-edit"></i></button></div>
 
             <div class="column-id hide"><%= bluray.id %></div>
         </div>
@@ -96,7 +96,7 @@
                     <% let actors = bluray.actor.split(','); %>
                     <% actors.forEach(actorEntry => { %>
                     <%      let actor = actorEntry.trim(); %>
-                    <span class="actor"><%= actor %></span>
+                    <span class="actor"><%- actor.replace(/\n/g, '<br/>') %></span>
                     <% }); %>
                 </span>
             </div>
@@ -109,7 +109,7 @@
                     <% let directors = bluray.director.split(','); %>
                     <% directors.forEach(directorEntry => { %>
                     <%      let director = directorEntry.trim(); %>
-                    <span class="actor"><%= director %></span>
+                    <span class="actor"><%- director.replace(/\n/g, '<br/>') %></span>
                     <% }); %>
                 </span>
             </div>
@@ -146,7 +146,7 @@
                     Notiz
                 </span>
                 <span class="sub-content">
-                    <%= bluray.note %>
+                    <%- bluray.note.replace(/\n/g, '<br/>') %>
                 </span>
             </div>
         </div>

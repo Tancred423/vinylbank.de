@@ -79,7 +79,7 @@
                 <% }); %>
             </div>
 
-            <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit('<%= cd.id %>', '<%= cd.title %>', '<%= cd.band %>', '<%= cd.genre %>', '<%= cd.year %>', '<%= cd.lend %>', '<%= cd.length %>', '<%= cd.note %>')"><i class="fas fa-edit"></i></button></div>
+            <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit('<%= cd.id %>', '<%= cd.title %>', '<%= cd.band.replace(/\n/g, '~n') %>', '<%= cd.genre %>', '<%= cd.year %>', '<%= cd.lend %>', '<%= cd.length %>', '<%= cd.note.replace(/\n/g, '~n') %>')"><i class="fas fa-edit"></i></button></div>
 
             <div class="column-id hide"><%= cd.id %></div>
         </div>

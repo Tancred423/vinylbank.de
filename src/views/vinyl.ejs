@@ -79,7 +79,7 @@
                 <% }); %>
             </div>
 
-            <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit('<%= vinyl.id %>', '<%= vinyl.title %>', '<%= vinyl.band %>', '<%= vinyl.genre %>', '<%= vinyl.type %>', '<%= vinyl.year %>', '<%= vinyl.lend %>', '<%= vinyl.length %>', '<%= vinyl.note %>')"><i class="fas fa-edit"></i></button></div>
+            <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit('<%= vinyl.id %>', '<%= vinyl.title %>', '<%= vinyl.band.replace(/\n/g, '~n') %>', '<%= vinyl.genre %>', '<%= vinyl.type %>', '<%= vinyl.year %>', '<%= vinyl.lend %>', '<%= vinyl.length %>', '<%= vinyl.note.replace(/\n/g, '~n') %>')"><i class="fas fa-edit"></i></button></div>
 
             <div class="column-id hide"><%= vinyl.id %></div>
         </div>

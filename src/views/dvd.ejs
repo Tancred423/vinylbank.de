@@ -71,7 +71,7 @@
             </div>
             <div class="column-3"><%= dvd.length %> min</div>
 
-            <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit('<%= dvd.id %>', '<%= dvd.title %>', '<%= dvd.actor %>', '<%= dvd.director %>', '<%= dvd.genre %>', '<%= dvd.year %>', '<%= dvd.lend %>', '<%= dvd.length %>', '<%= dvd.note %>')"><i class="fas fa-edit"></i></button></div>
+            <div class="column-edit"><button class="btn-edit btn orange" onclick="modal_edit('<%= dvd.id %>', '<%= dvd.title %>', '<%= dvd.actor.replace(/\n/g, '~n') %>', '<%= dvd.director.replace(/\n/g, '~n') %>', '<%= dvd.genre %>', '<%= dvd.year %>', '<%= dvd.lend %>', '<%= dvd.length %>', '<%= dvd.note.replace(/\n/g, '~n') %>')"><i class="fas fa-edit"></i></button></div>
 
             <div class="column-id hide"><%= dvd.id %></div>
         </div>

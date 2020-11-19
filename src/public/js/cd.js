@@ -293,6 +293,9 @@ $('#search').on('keyup', function (e) {
 
 // Update
 function modal_edit(cdId, title, band, genre, year, lend, length, note) {
+    band = band.replace(/~n/g, '\n')
+    note = note.replace(/~n/g, '\n')
+
     let html = `
         <div id="modal-edit" class="modal">
          	<div class="modal-inner">

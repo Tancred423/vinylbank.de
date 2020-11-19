@@ -1,4 +1,5 @@
-require('dotenv').config({ path: devMode ? 'D:/OneDrive/Documents/Programming/vinylbank.de/.env' : '/var/www/vinylbank.de/.env' });
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const router = require('express').Router();
 const mysql = require('../database/mysql');
 const jwt = require('jsonwebtoken');
@@ -153,7 +154,7 @@ module.exports = function () {
                             html: nws`
                                 Guten Tag,<br/>
                                 <br/>
-                                Bitte bestätigen Sie Ihre E-Mail Adresse indem Sie <a href="${url}">hier klicken</a>.<br/>
+                                bitte bestätigen Sie Ihre E-Mail Adresse indem Sie <a href="${url}">hier klicken</a>.<br/>
                                 Wenn Sie dies nicht selbst angefordert haben, können Sie diese E-Mail ignorieren.<br/>
                                 <br/>
                                 Viele Grüße,<br/>
@@ -207,7 +208,7 @@ module.exports = function () {
                             html: nws`
                                 Guten Tag,<br/>
                                 <br/>
-                                Bitte bestätigen Sie Ihre E-Mail Adresse indem Sie <a href="${url}">hier klicken</a>.<br/>
+                                bitte bestätigen Sie Ihre E-Mail Adresse indem Sie <a href="${url}">hier klicken</a>.<br/>
                                 Wenn Sie dies nicht selbst angefordert haben, können Sie diese E-Mail ignorieren.<br/>
                                 <br/>
                                 Viele Grüße,<br/>

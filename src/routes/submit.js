@@ -221,7 +221,7 @@ module.exports = function () {
     async function submitBluRayUpdate(req, res) {
         try {
             let { bluRayId, title, actor, director, genre, year, lend, length, note } = req.body;
-            bluRayId = blurayId.replace(/\s*,\s*/g, ', ');
+            bluRayId = bluRayId.replace(/\s*,\s*/g, ', ');
             title = title.replace(/\s*,\s*/g, ', ');
             actor = actor.replace(/\s*,\s*/g, ', ');
             director = director.replace(/\s*,\s*/g, ', ');
@@ -1236,7 +1236,7 @@ module.exports = function () {
             const searchTerm = req.body.searchTerm;
 
             // BluRay
-            const sql = nws`
+            let sql = nws`
                 SELECT *
                 FROM bluray
                 WHERE user_id=${mysql.escape(userId)}
@@ -1314,7 +1314,7 @@ module.exports = function () {
             let vinyls = await mysql.query(sql);
             vinyls = vinyls[0];
 
-            let objArray = [blurays, dvds, cds, vinyls];
+            let objArray = [bluRays, dvds, cds, vinyls];
             return res.json(objArray);
         } catch (err) {
             console.error(err);

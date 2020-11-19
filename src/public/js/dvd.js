@@ -296,6 +296,10 @@ $('#search').on('keyup', function (e) {
 
 // Update
 function modal_edit(dvdId, title, actor, director, genre, year, lend, length, note) {
+    actor = actor.replace(/~n/g, '\n')
+    director = director.replace(/~n/g, '\n')
+    note = note.replace(/~n/g, '\n')
+
     let html = `
         <div id="modal-edit" class="modal">
          	<div class="modal-inner">

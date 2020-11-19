@@ -1,11 +1,9 @@
-global.devMode = true;
-
-require('dotenv').config({ path: devMode ? 'D:/OneDrive/Documents/Programming/vinylbank.de/.env' : '/var/www/vinylbank.de/.env' });
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 5001;
 const session = require('express-session');
-const path = require('path');
 const mysql = require('./database/mysql');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');

@@ -297,6 +297,10 @@ $('#search').on('keyup', function (e) {
 
 // Update
 function modal_edit(bluRayId, title, actor, director, genre, year, lend, length, note) {
+    actor = actor.replace(/~n/g, '\n')
+    director = director.replace(/~n/g, '\n')
+    note = note.replace(/~n/g, '\n')
+
     let html = `
         <div id="modal-edit" class="modal">
          	<div class="modal-inner">
@@ -342,8 +346,6 @@ function modal_edit(bluRayId, title, actor, director, genre, year, lend, length,
          				    <label for="note">Notiz</label>
                             <textarea name="note" id="note" placeholder="z. B. Geschenk von Erika Mustermann">${note}</textarea>
          			    </div>
-
-         			    
          	        </div>
                     <div class="modal-footer">
                         <div class="text-right">
